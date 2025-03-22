@@ -38,6 +38,8 @@ DHCP es un protocolo que permite la asignación automática de direcciones IP y 
 
 - **DHCPv6 en IPv6**: Ofrece una configuración más controlada y detallada, permitiendo la asignación de información adicional como servidores DNS y dominios de búsqueda. Además, IPv6 soporta la autoconfiguración sin estado (SLAAC), donde los dispositivos pueden autoconfigurarse sin necesidad de un servidor.
 
+![image](https://github.com/user-attachments/assets/8d2920d1-af5a-40dc-9976-bcbfc78daff6)
+
 ## 2) Simulador vs emulador en redes
 
 Un simulador es una herramienta que imita el comportamiento de una red sin ejecutar realmente los protocolos o sistemas operativos subyacentes. No utiliza hardware o software real, sino que crea una representación abstracta de los dispositivos y su interacción. Un caso puede ser Cisco Packet Tracer, que permite diseñar redes virtuales y observar cómo se comportan los paquetes, pero sin ejecutar un sistema operativo real de los routers o switches.
@@ -48,13 +50,27 @@ Un emulador replica el comportamiento de un dispositivo real. Ejecuta el mismo c
 
 Para poder realizar el ping exitosamente, debemos configurar el gateway que utilizará cada host.
 
+![image](https://github.com/user-attachments/assets/9d02c378-63d1-46db-89b0-14aa4e8bee06)
+
+![image](https://github.com/user-attachments/assets/76613cc7-992e-422e-9eb6-376c493ea51e)
+
+![image](https://github.com/user-attachments/assets/e807fd68-b6ee-44d2-87e3-c99bbebe4701)
+
 ## 4) Ping IPv6
 
 Lo mismo que hemos realizado para IPv4, debemos configurar el gateway pero con su correspondiente dirección IPv6.
 
+![image](https://github.com/user-attachments/assets/3e3ade9a-4420-4d87-b6a7-78340d19773a)
+
+![image](https://github.com/user-attachments/assets/4417d815-964b-4e1f-9139-069f2c4b155f)
+
+![image](https://github.com/user-attachments/assets/450885dc-8949-4df0-bfbf-fb9438053ae0)
+
 ## 5) Tráfico ICMP desde h1 a h2
 
 Se ha generado el siguiente tráfico luego de limpiar la lista ARP y realizar un ping de h1 a h2:
+
+![image](https://github.com/user-attachments/assets/bf359eac-8ae0-4cb8-86d7-c99d206c94fa)
 
 En la imagen se observa primero la solicitud ARP que realiza h1 y luego el primer ping, desde que sale hasta que vuelve. Para este caso, el router 1 ya conocía la dirección de h2, pero h1 no, por lo que la solicitud de ARP llega hasta el router 1 solamente.
 
@@ -62,9 +78,23 @@ En la imagen se observa primero la solicitud ARP que realiza h1 y luego el prime
 
 Se observa que el primer evento de ARP es la generación de la solicitud para obtener la ip de su objetivo:
 
+![image](https://github.com/user-attachments/assets/fc1b462b-b360-48cb-b2dc-7425b0600dee)
+
+El siguiente evento, el router obtiene la solicitud ARP y la procesa:
+
+![image](https://github.com/user-attachments/assets/a938ace8-79fb-44b3-b451-bfaadcdc975a)
+
+Y el último evento es la recepción del host con la ip que solicitaba para luego poder hacer el ping:
+
+![image](https://github.com/user-attachments/assets/6b24a456-2fb7-4d41-a0ff-052efac56ec5)
+
 ### b) Si analizamos la siguiente imagen, se puede observar el paquete ICMP que ha enviado h1 al router, y se observa que la dirección de origen es 192.168.1.10 (h1) y la de destino es 192.168.2.10 (h2).
 
+![image](https://github.com/user-attachments/assets/f3c2f6ea-a5b5-457a-b6c3-4de3a860e89a)
+
 Ahora, si buscamos el camino de vuelta del ping, se observa que el origen y el destino se invierten.
+
+![image](https://github.com/user-attachments/assets/384fc103-70ba-4e87-bdc0-48e5c7495a9d)
 
 ### c) Cuando un host quiere comunicarse con otro que está en otra red, el tráfico debe pasar por el router, que actúa como intermediario. Lo que ocurrió en esta simulación fue que, primero h1 detecta que h2 está en otra subred y envía el paquete a su puerta de enlace predeterminada. El router recibe el paquete y revisa su tabla de enrutamiento para determinar la interfaz de salida, el switch recibe el paquete por su interfaz y lo reenvía a h2, basándose en su dirección MAC. El router, al conocer las subredes que conecta, puede hacer llegar el mensaje desde ambos hosts. Esto se puede ver utilizando “show ip route” en el router.
 
@@ -72,9 +102,15 @@ Ahora, si buscamos el camino de vuelta del ping, se observa que el origen y el d
 
 ### e) ARP de h1, almacena la dirección del router:
 
+![image](https://github.com/user-attachments/assets/45c7fbde-4735-41f7-8531-c348ffaf0b62)
+
 ### f) ARP de h3, almacena la dirección del router y de h2 que está dentro de la misma red:
 
+![image](https://github.com/user-attachments/assets/8a24ece8-5189-44c1-815a-ee3c668acd4a)
+
 ### g) El router muestra los dispositivos a los que ha conectado y por cuál interfaz lo ha hecho, así que tiene registro tanto de h1 por su interfaz como h2 y h3 que comparten la otra interfaz:
+
+![image](https://github.com/user-attachments/assets/feccfaf1-9410-4c4c-b9a3-87e9626487a7)
 
 ### h) Las direcciones broadcast son direcciones especiales que permiten enviar un mensaje a todos los dispositivos dentro de una red. ARP la utiliza para conocer los dispositivos en ella. La dirección puede ser 192.168.1.255, un mensaje enviado a esa dirección será recibido por todos los dispositivos en esa red.
 
@@ -84,11 +120,21 @@ Ahora, si buscamos el camino de vuelta del ping, se observa que el origen y el d
 
 Se ha realizado un ping desde h1 hasta h3 a través de IPv6:
 
+![image](https://github.com/user-attachments/assets/abec27b2-7b3b-4ca1-9be2-cf352d0f7596)
+
 El procedimiento fue bastante similar a cuando se hizo la prueba con IPv4.
 
 ### a) Luego del ping, ocurrieron algunas transmisiones de paquetes NDP:
 
+![image](https://github.com/user-attachments/assets/9ecc0671-d7a8-49a0-9aad-05341456e3f9)
+
 El router está enviando mensajes RA (Router Advertisement) para que los hosts sepan que pueden usarlo como gateway. Estos anuncios permiten que los hosts se configuren automáticamente en IPv6 sin necesidad de DHCP.
+
+![image](https://github.com/user-attachments/assets/90d78b4d-ba82-437c-b3af-2893bdf1f448)
+En esta imágen se puede ver cuando se genera la solicitud de NDP en el router 1, y será transmitida al host 1
+
+![image](https://github.com/user-attachments/assets/c24dc1f3-b0a7-4475-8c27-a68975cbace0)
+En esta otra imagen, podemos ver como recibe el host 2 una solicitud NDP con su dirección asociada.
 
 ### b) En concreto, NDP reemplaza ARP, es más eficiente, utiliza multicast en lugar de broadcast como hace ARP, además de permitir la autoconfiguración, haciendo anuncios de router cada cierto tiempo a los dispositivos conectados.
 
@@ -172,6 +218,8 @@ Para conectar una PC al switch a través del puerto consola, se siguieron los si
      - **Flow Control**: no
    - Guardar la configuración y conectarse.
 
+![image](https://github.com/user-attachments/assets/c55c0579-6276-4836-9893-e119ae1e6e77)
+
 ### b) Recuperación y modificación de contraseñas del switch
 
 Una vez dentro de la interfaz de administración del switch, se procedió a modificar las claves de acceso:
@@ -204,6 +252,8 @@ Una vez dentro de la interfaz de administración del switch, se procedió a modi
    - Configurar la dirección IP en la VLAN 1
    - Guardar la configuración
 
+![image](https://github.com/user-attachments/assets/5e7bb1d7-9aec-48c8-97fe-d458e03f275b)
+
 3. **Asignar direcciones IP estáticas en cada computadora**:
    - PC1: `192.168.1.10/24`
    - PC2: `192.168.1.20/24`
@@ -212,6 +262,8 @@ Una vez dentro de la interfaz de administración del switch, se procedió a modi
    ```bash
    ping 192.168.1.20
    ```
+![image](https://github.com/user-attachments/assets/ea3eb511-ff9c-4ddc-98b1-05a9710e207e)
+
 ### d) Configuración de Port Mirroring (SPAN) y análisis de tráfico
 
 Para monitorear el tráfico entre PC1 y PC2 desde PC3, se configuró el puerto Fa0/3 como puerto espejo (SPAN).
@@ -220,17 +272,20 @@ Para monitorear el tráfico entre PC1 y PC2 desde PC3, se configuró el puerto F
    ```bash
    Switch(config)# no monitor session 1
    ```
-1. **Configurar el puerto en modo mirroring**:
+2. **Configurar el puerto en modo mirroring**:
    ```bash
    Switch(config)# monitor session 1 source interface Fa0/1
    Switch(config)# monitor session 1 source interface Fa0/2
    Switch(config)# monitor session 1 destination interface Fa0/3
    ```
-1. **Verificar la configuración**:
+3. **Verificar la configuración**:
    ```bash
    Switch# show monitor session 1
    ```
-1. **Capturar tráfico con Wireshark**:
+![image](https://github.com/user-attachments/assets/048e0eeb-c0c8-4e9b-bb92-6c28fd01cfc4)
+![image](https://github.com/user-attachments/assets/27bcd041-86ac-4a10-9f22-0167c63c9b52)
+
+4. **Capturar tráfico con Wireshark**:
    - En PC3 (conectada en Fa0/3), abrimos Wireshark y capturamos paquetes.
 
 ![file_2025-03-20_19 00 29](https://github.com/user-attachments/assets/3d0efbf4-d7b2-4537-aa0a-a5d1e3e6eed8)
@@ -291,3 +346,6 @@ Para monitorear el tráfico entre PC1 y PC2 desde PC3, se configuró el puerto F
 - Se observaron correctamente paquetes ARP, que permiten la resolución de direcciones IP a direcciones MAC.
 - Se identificaron paquetes ICMP, usados en el ping, con respuestas tipo Echo Request y Echo Reply.
 - Se verificó la funcionalidad del port mirroring (SPAN), capturando todo el tráfico entre PC1 y PC2 desde PC3.
+
+![image](https://github.com/user-attachments/assets/6c7c5885-0f00-4069-91ce-19cfa608f8a0)
+Escucha de PC2 sobre mensaje desde PC1	
