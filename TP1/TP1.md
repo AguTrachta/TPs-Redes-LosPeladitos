@@ -106,3 +106,188 @@ El router está enviando mensajes RA (Router Advertisement) para que los hosts s
 - **Unique-Local**: Equivalentes a las direcciones privadas de IPv4, usadas en redes internas, no enrutables en Internet.
 - **Global Unicast**: Las únicas direcciones IPv6 que pueden usarse en Internet, equivalentes a las direcciones públicas en IPv4.
 
+# Parte 2: Manejo de Equipamiento Físico y Configuración del Switch Cisco Catalyst 2950
+
+## 1. Introducción
+
+Este apartado documenta el proceso realizado para la configuración, administración y monitoreo de un switch Cisco Catalyst 2950, abordando desde la conexión inicial hasta el análisis de tráfico de red. Se empleó una conexión serial a través del software Minicom en un sistema operativo Linux Mint, permitiendo establecer comunicación con el switch para su configuración y recuperación de credenciales.
+
+Asimismo, se realizaron pruebas de conectividad y análisis de tráfico de red mediante Wireshark, observando el comportamiento de los protocolos ARP, ICMP y la asignación de direcciones mediante DHCP. También se configuró un puerto en modo mirroring (SPAN) para capturar y monitorear el tráfico entre dos dispositivos conectados al switch.
+
+## 2. Objetivos
+
+Los objetivos principales de este trabajo fueron:
+
+- Familiarizarse con el equipamiento de red y comprender su anatomía, paneles e interfaces.
+- Poner en funcionamiento un switch empresarial desde cero y acceder a su configuración.
+- Recuperar credenciales de acceso mediante conexión por consola.
+- Realizar pruebas de conectividad y análisis de tráfico en la red.
+- Configurar el switch para realizar monitoreo de tráfico mediante port mirroring (SPAN).
+- Observar el comportamiento de los protocolos ARP, ICMP y DHCP en un entorno controlado.
+
+## 3. Materiales Utilizados
+
+Para la realización de este trabajo práctico se emplearon los siguientes elementos:
+
+- Switch Cisco Catalyst 2950
+- Tres computadoras (PC1, PC2 y PC3)
+- Cable consola RJ45 a Serial
+- Adaptador USB-Serial
+- Software Minicom (alternativa a PuTTY en Linux Mint)
+- Software Wireshark para captura y análisis de tráfico de red
+
+## 4. Características del Switch Cisco Catalyst 2950
+
+El Cisco Catalyst 2950 es un switch de capa 2 diseñado para redes empresariales pequeñas y medianas. Según el datasheet oficial, sus principales características son:
+
+- 24 puertos Fast Ethernet (10/100 Mbps)
+- Conexión y administración mediante consola (RJ45), Telnet y SSH
+- Soporte para VLANs
+- Funcionalidad de Port Mirroring (SPAN) para monitoreo de tráfico
+- No dispone de puertos Gigabit
+- Enfocado en redes de tamaño mediano o pequeño
+
+## 5. Procedimientos y Checklists
+
+### a) Conexión del switch mediante Minicom
+
+Para conectar una PC al switch a través del puerto consola, se siguieron los siguientes pasos:
+
+1. **Conectar el cable**  
+   - Conectar el cable RJ45-Serial desde el puerto consola del switch al adaptador USB-Serial en la PC.
+
+2. **Identificar el puerto serie en Linux**  
+   - Ejecutar el siguiente comando en la terminal para verificar el puerto asignado:
+     ```bash
+     dmesg | grep tty
+     ```
+   - El puerto asignado será `/dev/ttyUSB0`.
+
+3. **Instalar y configurar Minicom**  
+   - Ajustar los parámetros de comunicación:
+     - **Serial Device**: `/dev/ttyUSB0`
+     - **Velocidad de transmisión**: 9600 bps
+     - **Data bits**: 8
+     - **Paridad**: none
+     - **Flow Control**: no
+   - Guardar la configuración y conectarse.
+
+### b) Recuperación y modificación de contraseñas del switch
+
+Una vez dentro de la interfaz de administración del switch, se procedió a modificar las claves de acceso:
+
+1. **Ingresar al modo privilegiado**:
+   ```bash
+   Switch> enable
+   ```
+2. **Acceder al modo configuración global**:
+   ```bash
+   Switch# configure terminal
+   ```
+3. **Modificar la contraseña al modo privilegiado**:
+   ```bash
+   Switch(config)# enable secret cisco
+   ```
+4. **Guardar los cambios de configuración**:
+   ```bash
+   Switch# copy running-config startup-config
+   ```
+
+### c) Configuración de red y prueba de conectividad
+
+1. **Conectar físicamente las PCs a los puertos del switch**:
+   - PC1 en Fa0/1
+   - PC2 en Fa0/2
+
+2. **Para administrar el switch remotamente mediante Telnet o SSH, se configuró la IP de la VLAN 1 con la dirección 192.168.1.2**:
+   - Acceder al modo de configuración global
+   - Configurar la dirección IP en la VLAN 1
+   - Guardar la configuración
+
+3. **Asignar direcciones IP estáticas en cada computadora**:
+   - PC1: `192.168.1.10/24`
+   - PC2: `192.168.1.20/24`
+
+4. **Probar conectividad con ping**:
+   ```bash
+   ping 192.168.1.20
+   ```
+### d) Configuración de Port Mirroring (SPAN) y análisis de tráfico
+
+Para monitorear el tráfico entre PC1 y PC2 desde PC3, se configuró el puerto Fa0/3 como puerto espejo (SPAN).
+
+1. **Eliminar configuración SPAN previa (si existiera)**:
+   ```bash
+   Switch(config)# no monitor session 1
+   ```
+1. **Configurar el puerto en modo mirroring**:
+   ```bash
+   Switch(config)# monitor session 1 source interface Fa0/1
+   Switch(config)# monitor session 1 source interface Fa0/2
+   Switch(config)# monitor session 1 destination interface Fa0/3
+   ```
+1. **Verificar la configuración**:
+   ```bash
+   Switch# show monitor session 1
+   ```
+1. **Capturar tráfico con Wireshark**:
+   - En PC3 (conectada en Fa0/3), abrimos Wireshark y capturamos paquetes.
+
+![file_2025-03-20_19 00 29](https://github.com/user-attachments/assets/3d0efbf4-d7b2-4537-aa0a-a5d1e3e6eed8)
+
+## Análisis del Tráfico ICMP Capturado
+
+### Análisis General de la Captura
+
+1. **Tráfico ICMP (Ping)**: En la captura se observa que el tráfico capturado está relacionado con un proceso de ping (ICMP Echo Request y Echo Reply). Se está haciendo un "ping" entre dos dispositivos con las direcciones IP `192.168.1.10` (Cliente 1) y `192.168.1.15` (Cliente 2).
+
+2. **ARP**: En las primeras líneas se observa un tráfico ARP, que es usado para resolver direcciones IP en direcciones MAC dentro de una red local. Aquí, los dispositivos están preguntando "¿Quién tiene esta dirección IP?", y respondiendo con sus respectivas direcciones MAC para que el tráfico pueda ser enviado correctamente a través de la red.
+
+### Análisis Detallado de la Comunicación ARP:
+
+- **Comunicaciones ARP observadas**:
+  - Las solicitudes ARP son emitidas por los dispositivos para determinar la dirección MAC correspondiente a una dirección IP específica en la red local. En el tráfico ARP capturado, se ve que los dispositivos están realizando esta consulta.
+
+  **Ejemplo**:  
+  **Solicitud ARP de 192.168.1.10** (Cliente 1) buscando la dirección MAC de `192.168.1.15`. Este paquete se transmite en el broadcast de la red, ya que el origen no conoce la MAC del destino.
+  
+  Una vez que el dispositivo que tiene la IP correspondiente (`192.168.1.15`) responde, esta información se almacena en la tabla ARP del dispositivo solicitante, lo que permite futuras comunicaciones sin la necesidad de nuevas solicitudes ARP.
+
+### Datagramas ICMP:
+
+- **Ping Echo Request**:
+  - Cliente 1 envía un paquete ICMP de tipo "Echo Request" a `192.168.1.15` (Cliente 2). Este mensaje es enviado con una secuencia que permite al receptor responder.
+  
+- **Ping Echo Reply**:
+  - Cliente 2 responde con un "Echo Reply", que es la respuesta al paquete de "Echo Request". Este paquete lleva la dirección IP de origen como `192.168.1.15` y el destino como `192.168.1.10`.
+
+### Direcciones IP en los Datagramas:
+
+- **Direcciones IP**:
+  - **Origen**: `192.168.1.10` (Cliente 1)
+  - **Destino**: `192.168.1.15` (Cliente 2)
+  
+  Estas direcciones son las que se observan en los paquetes ICMP de tipo Echo Request y Echo Reply. Los paquetes ICMP contienen estas direcciones dentro del encabezado para garantizar que el tráfico llegue al destino correcto.
+
+### Comportamiento del Enrutador:
+
+- **El enrutador no es necesario en este escenario**: Ya que ambos dispositivos (Cliente 1 y Cliente 2) están dentro de la misma red (subred `192.168.1.0/24`), el tráfico no pasa por un enrutador. El intercambio de paquetes ICMP se maneja directamente entre los dispositivos a través de la red local.
+
+### Función del Switch:
+
+- **Switch**:
+  - El switch se encarga de reenviar tramas basadas en direcciones MAC. El switch no necesita conocer las direcciones IP, ya que está operando en la capa de enlace de datos (Capa 2 del modelo OSI). Su función es simplemente asegurar que las tramas lleguen al puerto adecuado según la dirección MAC de destino.
+  
+  - Los switches no tienen direcciones IP asignadas en sus interfaces porque no realizan funciones de enrutamiento, solo manejan tráfico dentro de la misma red local.
+
+## 6. Análisis y Resultados
+
+### Prueba de conectividad
+
+- El ping entre PC1 y PC2 fue exitoso, confirmando la conectividad.
+
+### Análisis de tráfico con Wireshark
+
+- Se observaron correctamente paquetes ARP, que permiten la resolución de direcciones IP a direcciones MAC.
+- Se identificaron paquetes ICMP, usados en el ping, con respuestas tipo Echo Request y Echo Reply.
+- Se verificó la funcionalidad del port mirroring (SPAN), capturando todo el tráfico entre PC1 y PC2 desde PC3.
