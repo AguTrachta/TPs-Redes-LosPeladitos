@@ -348,4 +348,5 @@ Para monitorear el tráfico entre PC1 y PC2 desde PC3, se configuró el puerto F
 - Se verificó la funcionalidad del port mirroring (SPAN), capturando todo el tráfico entre PC1 y PC2 desde PC3.
 
 ![image](https://github.com/user-attachments/assets/6c7c5885-0f00-4069-91ce-19cfa608f8a0)
+
 Escucha de PC2 sobre mensaje desde PC1	
