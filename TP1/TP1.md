@@ -1,3 +1,42 @@
+# Trabajo Práctico N°1
+
+**Redes de computadoras**  
+**Facultad de Ciencias Exactas, Físicas y Naturales - UNC**  
+
+**Grupo: Los Peladitos**  
+
+**Integrantes**  
+
+    Agustín Pallardó
+    Agustín Trachta
+    Mateo Rodríguez
+    Tomás A. Cisneros
+
+
+**Profesores**   
+
+    Santiago M. Henn
+    Facundo N. Oliva C.
+
+**Marzo de 2025** 
+
+---
+
+### Información de contacto
+ 
+-  _apallardo@mi.unc.edu.ar_  
+-  _agutrachta@mi.unc.edu.ar_  
+-  _mateo.rodriguez@mi.unc.edu.ar_  
+-  _tomas.cisneros@mi.unc.edu.ar_  
+
+---
+
+# Resumen
+
+Este informe documenta la configuración de una red IPv4/IPv6, el análisis de tráfico ICMP mediante simuladores y la configuración de un switch Cisco Catalyst 2950. Se comparan protocolos de resolución de direcciones, se captura tráfico con Wireshark y se realiza un análisis detallado de los intercambios ARP y NDP, así como el uso de port mirroring (SPAN) para diagnóstico de red.
+
+
+
 # Parte 1: Configuración y Análisis de tráfico IPv4/IPv6
 
 ## 1) Marco teórico
