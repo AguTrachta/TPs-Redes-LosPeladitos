@@ -380,14 +380,16 @@ Para monitorear el tráfico entre PC1 y PC2 desde PC3, se configuró el puerto F
 
 ### Prueba de conectividad
 
-- El ping entre PC1 y PC2 fue exitoso, confirmando la conectividad.
+- El ping entre PC1 y PC2 fue exitoso. Las pruebas de conectividad realizadas entre PC1 y PC2 confirmaron el correcto establecimiento de la comunicación en la red. El envío y recepción exitosos de paquetes ICMP (Echo Request y Echo Reply) validaron la operatividad de los dispositivos y su configuración de red.
 
 ### Análisis de tráfico con Wireshark
 
-- Se observaron correctamente paquetes ARP, que permiten la resolución de direcciones IP a direcciones MAC.
+- Se observaron correctamente paquetes ARP: Esto evidencia que la resolución de direcciones IP a direcciones MAC se llevó a cabo correctamente, permitiendo la comunicación entre los dispositivos.
 - Se identificaron paquetes ICMP, usados en el ping, con respuestas tipo Echo Request y Echo Reply.
-- Se verificó la funcionalidad del port mirroring (SPAN), capturando todo el tráfico entre PC1 y PC2 desde PC3.
+- Se verificó la funcionalidad del port mirroring (SPAN), capturando todo el tráfico entre PC1 y PC2 desde PC3, indica que la configuración de monitoreo fue adecuada, permitiendo la observación del tráfico sin afectar el rendimiento de la red.
 
 ![image](https://github.com/user-attachments/assets/6c7c5885-0f00-4069-91ce-19cfa608f8a0)
 
 Escucha de PC2 sobre mensaje desde PC1	
+
+En conclusión, la infraestructura de red se encuentra correctamente configurada, garantizando la comunicación entre los dispositivos y permitiendo su análisis en tiempo real. Estos resultados sugieren que la red es funcional y estable, proporcionando una base confiable para futuras pruebas o mejoras en la configuración.
