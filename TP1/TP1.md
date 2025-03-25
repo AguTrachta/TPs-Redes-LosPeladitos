@@ -170,9 +170,11 @@ El procedimiento fue bastante similar a cuando se hizo la prueba con IPv4.
 El router está enviando mensajes RA (Router Advertisement) para que los hosts sepan que pueden usarlo como gateway. Estos anuncios permiten que los hosts se configuren automáticamente en IPv6 sin necesidad de DHCP.
 
 ![image](https://github.com/user-attachments/assets/90d78b4d-ba82-437c-b3af-2893bdf1f448)
+
 En esta imágen se puede ver cuando se genera la solicitud de NDP en el router 1, y será transmitida al host 1
 
 ![image](https://github.com/user-attachments/assets/c24dc1f3-b0a7-4475-8c27-a68975cbace0)
+
 En esta otra imagen, podemos ver como recibe el host 2 una solicitud NDP con su dirección asociada.
 
 ### b) En concreto, NDP reemplaza ARP, es más eficiente, utiliza multicast en lugar de broadcast como hace ARP, además de permitir la autoconfiguración, haciendo anuncios de router cada cierto tiempo a los dispositivos conectados.
