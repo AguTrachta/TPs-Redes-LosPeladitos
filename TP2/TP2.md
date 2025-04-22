@@ -311,54 +311,10 @@ En base a las pruebas realizadas en la sección 5, se analizan los siguientes as
         - No hay mecanismos de **retransmisión** si el destino no responde.
         - El tráfico es **unidireccional** desde la fuente al destino.
 
-
 *   **¿Observamos relación entre alguno de los parámetros de la prueba y la pérdida de paquetes?**
-    *   Packet Tracer puede indicar paquetes perdidos (dropped) en el Modo Simulación (a menudo con una X roja). [Indica si observaste pérdidas].
-    *   ¿Se relacionaron con alguna configuración específica? Por ejemplo:
-        *   ¿Enviar tráfico UDP a una tasa muy alta (`-b` en iperf3, Rate en PT) causó pérdidas en enlaces más lentos (seriales)?
-        *   ¿Usar tamaños de paquete muy grandes afectó?
-    *   [Comenta tus hallazgos. Puede que en PT con configuraciones básicas no se vean pérdidas a menos que la red esté mal configurada o los enlaces sean muy lentos].
-
-*   **Influencia del Enrutamiento Estático:**
-    *   Las rutas observadas en el Modo Simulación [Confirma si coincidieron con las rutas estáticas configuradas]. Con enrutamiento estático, la ruta para un destino dado es siempre la misma, definida manualmente. No hay adaptación a cambios en la red o congestión (a diferencia del enrutamiento dinámico).
-
----
-
-# 7. Prueba Cliente-Servidor Centralizado (Adaptación Punto 5 del TP)
-
-Para simular el escenario propuesto en el punto 5 del TP (un cliente de un grupo hacia un servidor "propuesto en clase"), se designó uno de los PCs como servidor central y se realizaron pruebas desde los otros PCs hacia él.
-
-**Escenario Simulado:**
-*   **Servidor Designado:** [Ej. PC2 (192.168.30.10)]
-*   **Clientes:** [Ej. PC0 (192.168.10.10) y PC1 (192.168.20.10)]
-
-**Prueba 1: Cliente PC0 -> Servidor PC2**
-*   **Configuración:** [Similar a 5.3, indica Protocolo, Tamaño, Tasa/Duración]
-*   **Resultados:**
-    <!-- Placeholder para Imagen: TG Cliente PC0 -> Servidor PC2 -->
-    ![TG Cliente PC0 -> Servidor PC2](path/to/your/tg_client0_server2.png)
-    <!-- Placeholder para Imagen: Simulación Cliente PC0 -> Servidor PC2 -->
-    ![Simulación Cliente PC0 -> Servidor PC2](path/to/your/sim_client0_server2.png)
-    *   Análisis: [Ruta seguida, pérdidas, métricas PT].
-
-**Prueba 2: Cliente PC1 -> Servidor PC2**
-*   **Configuración:** [Similar a 5.3, indica Protocolo, Tamaño, Tasa/Duración]
-*   **Resultados:**
-    <!-- Placeholder para Imagen: TG Cliente PC1 -> Servidor PC2 -->
-    ![TG Cliente PC1 -> Servidor PC2](path/to/your/tg_client1_server2.png)
-    <!-- Placeholder para Imagen: Simulación Cliente PC1 -> Servidor PC2 -->
-    ![Simulación Cliente PC1 -> Servidor PC2](path/to/your/sim_client1_server2.png)
-    *   Análisis: [Ruta seguida, pérdidas, métricas PT].
-
-**Comparación y Conclusiones Específicas:**
-*   **Comparación con Punto 5.3:** ¿Fueron los resultados (ruta, éxito/fallo, observaciones cualitativas de performance) similares a las pruebas inter-grupo realizadas previamente (ej. PC0->PC2 y PC1->PC2)? [Comenta similitudes/diferencias].
-*   **Análisis (Aspectos Punto 4):** Aplicando las preguntas del punto 4 a este escenario centralizado:
-    *   Ancho de banda (cualitativo): [Comentario]
-    *   Duración/Tamaño: [Comentario]
-    *   Diferencias TCP/UDP (si se probaron ambos): [Comentario]
-    *   Pérdidas: [Comentario]
-*   **Conclusión del Escenario:** [Resume si la comunicación hacia el servidor centralizado funcionó como se esperaba bajo la configuración de enrutamiento estático].
-
+    *   No se observaron pérdida de paquetes.
+    *   Esta pregunta es mas complicada de responder ya que al ser pruebas pocos complejas en packet tracer no hay problemas, al no poder realizar el trabajo presencial no podemos detectar muchas diferencias y perdidas.
+    
 ---
 
 # 8. Conclusiones Generales
@@ -374,36 +330,4 @@ Se identificaron las diferencias conceptuales entre TCP y UDP y se observaron al
 
 La principal limitación encontrada fue la incapacidad de Packet Tracer para ejecutar herramientas de medición de performance estándar como `iperf3`, lo que restringe la obtención de métricas cuantitativas precisas de ancho de banda, jitter y pérdida en escenarios realistas. Sin embargo, como herramienta didáctica para comprender el flujo de datos, el enrutamiento y la configuración de protocolos, Packet Tracer demostró ser valioso.
 
-Como trabajo futuro, sería interesante implementar enrutamiento dinámico (como OSPF o EIGRP) sobre la misma topología y comparar el comportamiento de las rutas, la convergencia y, si fuera posible en un entorno real o con simuladores más avanzados (GNS3, EVE-NG), medir la performance y la resiliencia ante fallos de enlaces.
 
-En resumen, se cumplieron los objetivos principales del TP adaptados al entorno de simulación, reforzando la comprensión de direccionamiento, enrutamiento estático y los principios básicos de la evaluación de performance en redes.
-
----
-
-# 9. Bibliografía
-
-*   [Si usaste algún libro, web, manual específico, cítalo aquí. Ej: Kurose, J. F., & Ross, K. W. (2017). Computer Networking: A Top-Down Approach.]
-*   [Documentación de Cisco Packet Tracer (si aplica)]
-*   [Página oficial de iperf3: https://iperf.fr/]
-
----
-
-# 10. Anexos
-
-*(Opcional: Incluye aquí configuraciones completas de los routers (`show running-config`), tablas de enrutamiento detalladas, o cualquier otra información extensa que no encaje bien en el cuerpo principal del informe)*
-
-*   **Anexo A:** Configuración completa de Router1.
-    ```
-    Router# show running-config
-    [Pega aquí la configuración]
-    ```
-*   **Anexo B:** Configuración completa de Router2.
-    ```
-    Router# show running-config
-    [Pega aquí la configuración]
-    ```
-*   **Anexo C:** Configuración completa de Router3.
-    ```
-    Router# show running-config
-    [Pega aquí la configuración]
-    ```
