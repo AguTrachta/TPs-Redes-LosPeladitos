@@ -147,15 +147,12 @@ OSPF utiliza varios tipos de paquetes para su funcionamiento, encapsulados direc
 5.  **LSAck (Link State Acknowledgment):** Acuse de recibo explícito para paquetes DBD, LSR y LSU, asegurando la fiabilidad del intercambio de estado de enlace.
 
 **Análisis en Packet Tracer:**
-Se utilizó el modo Simulación de Packet Tracer, filtrando por el protocolo `OSPF`. Se observó el intercambio de paquetes `Hello` entre routers vecinos en los enlaces seriales y en el segmento Ethernet conectado a R2 (Gi0/0). Al iniciar la red o tras un cambio, se pudieron observar los paquetes `DBD`, `LSR`, `LSU` y `LSAck` durante el proceso de sincronización de LSDBs y formación de adyacencias.
+Se utilizó el modo Simulación de Packet Tracer, filtrando por el protocolo `OSPF`. Se observó el intercambio de paquetes `Hello` entre routers vecinos en los enlaces seriales y en el segmento Ethernet conectado a R2 (Gi0/0). Al iniciar la red o tras un cambio, se pudieron observar los paquetes `DBD`, `LSR`, `LSU` y `LSAck` (vistos como OSPF) durante el proceso de sincronización de LSDBs y formación de adyacencias.
 
-<!-- Placeholder para Imagen: Captura Modo Simulación mostrando paquetes Hello OSPF -->
-![Paquetes Hello OSPF en Simulación](path/to/your/ospf_hello_sim.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/9382e2bb-87ce-4398-83d8-b202598d6294)
 
-<!-- Placeholder para Imagen: Captura Modo Simulación mostrando intercambio DBD/LSR/LSU/LSAck -->
-![Sincronización LSDB OSPF en Simulación](path/to/your/ospf_lsdb_sync_sim.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/d5341007-0bfb-4378-bd86-0968afa07ac2)
+
 
 **Impacto:** Estos mensajes son fundamentales. Los Hello mantienen la vecindad (si se dejan de recibir Hellos por el Dead Interval, el vecino se considera caído). El intercambio DBD/LSR/LSU/LSAck asegura que todos los routers en un área tengan una LSDB idéntica, lo cual es prerrequisito para que el algoritmo SPF calcule rutas consistentes y se eviten bucles de enrutamiento. El flooding de LSUs propaga rápidamente la información sobre cambios en la topología (enlaces caídos/levantados, cambios de costo).
 
@@ -167,20 +164,18 @@ La LSDB contiene todos los LSAs recibidos que describen la topología del área.
 
 ## 5.1. Lectura de LSDB (Area 0 Inicial)
 
-Se ejecutó `show ip ospf database` en varios routers (ej. R1, R3) mientras todos estaban en Area 0.
+Se ejecutó `show ip ospf database` en varios routers (R2, R3 respectivamente en las imagenes) mientras todos estaban en Area 0.
 
-<!-- Placeholder para Imagen: Salida `show ip ospf database` en R1 (Area 0) -->
-![LSDB en R1 (Area 0)](path/to/your/r1_ospf_db_area0.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/a603ccef-84dc-44ea-afa6-8ec525c17f8b)
 
-<!-- Placeholder para Imagen: Salida `show ip ospf database` en R3 (Area 0) -->
-![LSDB en R3 (Area 0)](path/to/your/r3_ospf_db_area0.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/16d894d6-98fd-4927-a95c-8e6bae1247a3)
 
-**Observaciones:**
-*   Se observan principalmente **Router LSAs (Type 1)**, originados por cada router en el área (identificados por el Router ID del originador). Cada Router LSA describe los enlaces directos de ese router, sus costos y los vecinos conectados a esos enlaces.
-*   En redes multiacceso (como la conectada a R2-Gi0/0), también se ve un **Network LSA (Type 2)**, originado por el DR (Designated Router) de ese segmento. Este LSA lista todos los routers conectados a ese segmento multiacceso.
-*   La LSDB debería ser **idéntica** en todos los routers dentro del Área 0 respecto a los LSAs de esa área.
+
+En la sección **Router Link States (Area 0)** se observaron LSAs tipo 1 originados por los routers con IDs 1.1.1.1 a 5.5.5.5. Cada entrada representa un resumen de los enlaces activos que cada router publica dentro del área.
+
+- El Router 3.3.3.3 muestra 8 enlaces activos, lo que refleja su rol central en la topología.
+- Los campos `Age`, `Seq#` y `Checksum` indican la antigüedad, versión y validez del LSA.
+- La presencia de los cinco routers confirma que la LSDB está sincronizada y completa en el Área 0.
 
 ---
 
@@ -192,17 +187,9 @@ Se procedió a dividir la red OSPF en dos áreas según lo solicitado.
 
 *   **Área 0 (Backbone):** Incluirá a **R3, R4, R5**. El Área 0 es especial y todas las demás áreas deben conectarse a ella (directa o virtualmente).
 *   **Área 1:** Incluirá a **R1, R2**.
-*   **Router de Borde de Área (ABR - Area Border Router):** **R3** se convierte en ABR, ya que tiene interfaces en Área 0 (hacia R4, R5) y en Área 1 (hacia R1, R2). Los ABRs son responsables de resumir e inyectar información de rutas entre áreas. R1 y R2 también serían ABRs si tuvieran interfaces en ambas áreas definidas. [*Corrección:* Basado en el TP "R1 y R2 están en el área A, el resto... en el área B", y asumiendo que Área A es Area 1 y Área B es Area 0, entonces R1, R2, y R3 serían ABRs, lo cual es inusual. Una interpretación más común es R1, R2 en Área 1; R4, R5 en Área 2; y R3 solo en Área 0, haciendo de R3 el ABR clave conectando las otras áreas. *Sigue la interpretación del TP: R1, R2 en Area 1; R3, R4, R5 en Area 0. R3 actúa como ABR.*]
+*   **Router de Borde de Área (ABR - Area Border Router):** **R3** se convierte en ABR, ya que tiene interfaces en Área 0 (hacia R4, R5) y en Área 1 (hacia R1, R2). Los ABRs son responsables de resumir e inyectar información de rutas entre áreas. R1 y R2 también serían ABRs si tuvieran interfaces en ambas áreas definidas.
 
 **Revisión del Diseño:** Siguiendo estrictamente "R1 y R2 están en el área A [Area 1], el resto (R3, R4, R5) estarán en el área B [Area 0]":
-*   **Area 1:** R1, R2, Enlace R1-R2.
-*   **Area 0:** R4, R5, LAN h4, LAN h5, Enlace R4-R5.
-*   **ABRs:** R3 (conecta Area 1 y Area 0). R1 y R2 tienen enlaces hacia R3 que está en Area 0, así que estrictamente, las interfaces `Se0/2/1`(R1) y `Se0/3/1`(R2) estarían en Area 1, mientras que `Se0/3/0`(R3) y `Se0/3/1`(R3) estarían en Area 0. El enlace en sí debe pertenecer a una única área. La forma estándar es que **el enlace R1-R3 y R2-R3 pertenezcan al Area 0 (Backbone)** y las redes internas de R1/R2 (Loopback, enlace R1-R2) a Area 1. **Vamos a seguir esta interpretación estándar:**
-    *   **Area 1:** Loopback R1, Red LAN h1/h2/h3 (via R2), Enlace R1-R2. Routers participantes: R1, R2.
-    *   **Area 0:** LAN h4, LAN h5, Enlace R1-R3, Enlace R2-R3, Enlace R3-R4, Enlace R3-R5, Enlace R4-R5. Routers participantes: R1, R2, R3, R4, R5.
-    *   **ABRs:** R1, R2, R3 (Todos tienen interfaces en ambas áreas según esta interpretación). *[Simplificación/Alternativa más probable deseada por el TP: Quizás querían que los ENLACES R1-R3 y R2-R3 estuvieran en AREA 1, haciendo solo a R3 el ABR. Verifiquemos esta opción]*
-
-**Interpretación Final (Más probable):**
 *   **Area 1:** R1, R2. Redes: Loopback R1, LAN h1/h2/h3 (vía R2), **Enlace R1-R2**, **Enlace R1-R3**, **Enlace R2-R3**.
 *   **Area 0:** R3, R4, R5. Redes: LAN h4, LAN h5, Enlace R3-R4, Enlace R3-R5, Enlace R4-R5.
 *   **ABR:** **R3**. Las interfaces de R3 hacia R1 y R2 (Se0/3/0, Se0/3/1) se configurarán como parte del Area 1. Las interfaces de R3 hacia R4 y R5 (Se0/2/0, Se0/2/1) se configurarán como parte del Area 0.
@@ -258,21 +245,19 @@ Se modificaron los comandos `network` en los routers para asignar las redes a la
 
 ## 6.3. Verificación Multi-Área
 
-Tras la reconfiguración y convergencia:
-*   **Vecinos:** Se verificó que las adyacencias se restablecieron correctamente con `show ip ospf neighbor`. R3 ahora debe mostrar vecinos indicando la interfaz y el área a la que pertenece esa interfaz.
-*   **Rutas:** Se usó `show ip route ospf`. En routers dentro de Area 1 (R1, R2), las rutas hacia redes en Area 0 (ej. LAN h4, LAN h5) ahora aparecen como **Inter-Area (`O IA`)**. De manera similar, en R4/R5 (Area 0), las rutas hacia redes en Area 1 (ej. LAN h1/h2/h3, Loopback R1) aparecen como `O IA`. El ABR (R3) tendrá rutas intra-área (`O`) para ambas áreas.
-    <!-- Placeholder para Imagen: Salida `show ip route ospf` en R1 (mostrando O IA) -->
-    ![Rutas Inter-Area en R1](path/to/your/r1_ospf_routes_ia.png)
-    *(Reemplaza con tu captura)*
-    <!-- Placeholder para Imagen: Salida `show ip route ospf` en R4 (mostrando O IA) -->
-    ![Rutas Inter-Area en R4](path/to/your/r4_ospf_routes_ia.png)
-    *(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/a62530fc-1b81-47c0-82b7-6f887dbe15c5)
+
+`show ip ospf interface` brief desde R3
+
 *   **LSDB:** `show ip ospf database` en R3 (ABR) ahora muestra LSAs para ambas áreas. Además, R3 origina **Summary LSAs (Type 3)** para anunciar redes de un área a la otra. Los routers dentro de un área (ej. R1) verán LSAs Type 1 y 2 de su propia área y LSAs Type 3 originados por el ABR (R3) describiendo redes de la otra área.
-    <!-- Placeholder para Imagen: Salida `show ip ospf database` en R3 (mostrando LSAs de Area 0 y Area 1, y Summary LSAs) -->
-    ![LSDB en ABR R3](path/to/your/r3_ospf_db_multi_area.png)
-    *(Reemplaza con tu captura)*
+
+![image](https://github.com/user-attachments/assets/ce365c5d-7c24-4c5b-8a05-2f86e5813e5a)
+
 *   **Conectividad:** Se repitieron las pruebas `ping` y `tracert` entre hosts de diferentes áreas, confirmando que la conectividad total se mantiene.
 
+![image](https://github.com/user-attachments/assets/75a7812a-ac2b-4c06-aa90-5a034fd27953)
+
+Ping desde h1 a h4 con las nuevas areas
 ---
 
 # 7. Verificación Detallada del Funcionamiento OSPF (Punto 7)
@@ -281,9 +266,7 @@ Tras la reconfiguración y convergencia:
 
 Se utilizó `show ip ospf neighbor detail` en R2 para obtener información extendida sobre sus vecinos (R1 y R3).
 
-<!-- Placeholder para Imagen: Salida `show ip ospf neighbor detail` en R2 -->
-![Detalle Vecinos OSPF en R2](path/to/your/r2_ospf_neighbor_detail.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/d5612bc3-1f77-4cb1-8fb7-7154ffe32044)
 
 **Observaciones:** Se puede ver el Router ID del vecino, su prioridad (relevante para elección DR/BDR), estado de la adyacencia (`FULL`), dirección IP de la interfaz del vecino, interfaz local por la que se alcanza, timers (Hello/Dead), y opciones OSPF negociadas.
 
@@ -295,13 +278,9 @@ Se usaron comandos para inspeccionar el funcionamiento de OSPF en las interfaces
 *   `show ip ospf interface Serial0/3/0`: Muestra detalles en la interfaz hacia R1. Tipo de red (Point-to-Point), costo, timers, vecino.
 *   `show ip ospf interface Serial0/3/1`: Muestra detalles en la interfaz hacia R3.
 
-<!-- Placeholder para Imagen: Salida `show ip ospf interface GigabitEthernet0/0` en R2 -->
-![Detalle OSPF Interfaz Gi0/0 en R2](path/to/your/r2_ospf_int_gi00.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/ef7f41f4-7f72-419c-ad73-fb2032994591)
 
-<!-- Placeholder para Imagen: Salida `show ip ospf interface Serial0/3/0` en R2 -->
-![Detalle OSPF Interfaz Se0/3/0 en R2](path/to/your/r2_ospf_int_se030.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/ad3994f0-4944-4c2c-82bc-b7c1cc542510)
 
 **Observaciones:** Estos comandos permiten verificar que OSPF esté activo en las interfaces correctas, con los parámetros esperados (área, costo, timers) y ver el rol del router en segmentos multiacceso (DR/BDR).
 
@@ -320,11 +299,11 @@ router ospf 1
  auto-cost reference-bandwidth 10000 ! (Ej. 10 Gbps en Mbps)
 ```
 **Opción 2: Modificar Costo por Interfaz (Específico)**
-Se eligió modificar manualmente el costo en un enlace específico para observar el impacto directo en el enrutamiento. Se aumentó el costo del enlace R2-R3 (vía Serial0/3/1 en R2) a un valor alto (ej. 100).
-* En R2:
+Se eligió modificar manualmente el costo en un enlace específico para observar el impacto directo en el enrutamiento. 
+* En R1:
 ```bash
 configure terminal
-interface Serial0/3/1
+interface Serial0/2/1
  ip ospf cost 100
 end
 copy run start
@@ -332,14 +311,13 @@ copy run start
 
 ## 8.2. Verificación con Traceroute
 
-*   **Antes de la Modificación:** Se ejecutó `tracert` desde h1 hacia h5. La ruta observada fue [Describe la ruta original, ej: PC -> R2 -> R3 -> R5 -> PC o similar, mostrando IPs de los routers].
-    <!-- Placeholder para Imagen: Traceroute h1 a h5 ANTES del cambio de costo -->
-    ![Traceroute h1-h5 Antes](path/to/your/tracert_h1_h5_before.png)
-    *(Reemplaza con tu captura)*
-*   **Después de la Modificación:** Se esperó la convergencia de OSPF (generalmente unos segundos) y se repitió `tracert` desde h1 hacia h5. Al aumentar significativamente el costo del enlace R2-R3, OSPF recalculó la ruta más corta. La nueva ruta observada fue [Describe la nueva ruta, ej: PC -> R2 -> R1 -> R3 -> R5 -> PC o PC -> R2 -> R1 -> R3 -> R4 -> R5 -> PC, mostrando IPs]. Esta nueva ruta evita el enlace R2-R3 directo debido a su alto costo.
-    <!-- Placeholder para Imagen: Traceroute h1 a h5 DESPUÉS del cambio de costo -->
-    ![Traceroute h1-h5 Después](path/to/your/tracert_h1_h5_after.png)
-    *(Reemplaza con tu captura)*
+*   **Antes de la Modificación:** Se ejecutó `tracert` desde h1 hacia h4. La ruta observada fue [Describe la ruta original, ej: PC -> R2 -> R3 -> R5 -> PC o similar, mostrando IPs de los routers].
+
+*   **Después de la Modificación:** Se esperó la convergencia de OSPF (generalmente unos segundos) y se repitió `tracert` desde h1 hacia h4. Al aumentar significativamente el costo del enlace R2-R3, OSPF recalculó la ruta más corta. La nueva ruta observada fue [Describe la nueva ruta, ej: PC -> R2 -> R1 -> R3 -> R5 -> PC o PC -> R2 -> R1 -> R3 -> R4 -> R5 -> PC, mostrando IPs]. Esta nueva ruta evita el enlace R2-R3 directo debido a su alto costo.
+
+    ![image](https://github.com/user-attachments/assets/2243755f-272d-458a-a3cc-9264bdd0c173)
+
+El primer ping es antes de cambiar el costo de R1, el segundo es despues del cambio.
 
 **Conclusión:** Modificar el costo OSPF es una herramienta clave para influir en la selección de rutas. Aumentar el costo de un enlace lo hace menos preferible, forzando a OSPF a buscar caminos alternativos con menor costo total acumulado, lo que se pudo verificar claramente con `traceroute`.
 
@@ -363,9 +341,9 @@ Se utilizó la interfaz Loopback0 (1.1.1.1) como un marcador simbólico del "ext
     copy running-config startup-config
     ```
     Se verificó la correcta instalación de esta ruta en la tabla de R1 con `show ip route static`.
-    <!-- Placeholder para Imagen: Salida `show ip route static` en R1 mostrando la ruta default -->
-    ![Ruta Estática Default en R1](path/to/your/r1_static_default_route.png)
-    *(Reemplaza con tu captura)*
+      
+![image](https://github.com/user-attachments/assets/7b2a0bd3-809e-4b32-af9b-c201eebea0ab)
+
 
 ## 9.2. Redistribución en OSPF
 
@@ -377,25 +355,18 @@ Se instruyó al proceso OSPF en R1 para que generara y anunciara información de
     router ospf 1
      ! Comando para inyectar la ruta default (si existe en la RIB) en OSPF
      default-information originate
-     ! Opciones adicionales (no usadas aquí pero útiles):
-     ! 'always': Anuncia la ruta default incluso si R1 no tiene una él mismo.
-     ! 'metric <valor>': Establece el costo externo inicial (por defecto 1 si viene de OSPF, 20 si viene de estática/conectada).
-     ! 'metric-type <1|2>': Define si el costo es E1 (acumula costo interno) o E2 (costo externo fijo, por defecto).
     end
     copy run start
     ```
 
 ## 9.3. Verificación
 
-Se verificó la tabla de enrutamiento en los otros routers (ej. R2, R4, R5) para confirmar que recibieron la ruta predeterminada vía OSPF.
+Se verificó la tabla de enrutamiento en los otros routers para confirmar que recibieron la ruta predeterminada vía OSPF.
 
-<!-- Placeholder para Imagen: Salida `show ip route` en R4 mostrando ruta O*E2 -->
-![Ruta Predeterminada OSPF en R4](path/to/your/r4_ospf_default_route.png)
-*(Reemplaza con tu captura)*
 
-<!-- Placeholder para Imagen: Salida `show ip route` en R2 mostrando ruta O*E2 -->
-![Ruta Predeterminada OSPF en R2](path/to/your/r2_ospf_default_route.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/a79e31ac-0169-47bc-a072-26b3bf5dca74)
+
+Salida `show ip route` en R4 mostrando ruta O*E2 
 
 **Observaciones:** En las tablas de enrutamiento de R2, R3, R4 y R5, apareció una nueva entrada para la ruta predeterminada, identificada como `O*E2 0.0.0.0/0`.
 *   `O`: Aprendida vía OSPF.
@@ -438,7 +409,13 @@ Se analiza el impacto esperado y observable en la red OSPF si fallan diferentes 
     6.  **ABR:** R3 (ABR) envía un Summary LSA actualizado (o retira el existente) hacia Area 0, informando que la red `172.16.1.0/24` ya no es alcanzable.
     7.  **Impacto:** Los hosts h1, h2, h3 quedan completamente **aislados** del resto de la red OSPF, ya que R2 era su único gateway. Ningún otro router tendrá una ruta válida hacia `172.16.1.0/24`. R2 también pierde conectividad con estos hosts. OSPF maneja la actualización de la topología, pero no puede restaurar la conectividad si no hay caminos redundantes hacia esa LAN específica.
 
-**Simulación (Opcional):** Se podría simular esto en Packet Tracer apagando manualmente la interfaz (`shutdown` en la configuración de la interfaz) y observando los cambios en las tablas de enrutamiento y los resultados de `traceroute` tras la convergencia.
+![image](https://github.com/user-attachments/assets/556e1de5-0a7a-4ef6-8928-7b8f84706fd5)
+
+Ejemplo de tracert desde h1 al Loopback R1. El primero es con todos los serial activados, el ultimo es con el serial 0/3/1 (es decir, el de R2 a R3 apagado (falla).
+
+![image](https://github.com/user-attachments/assets/866c8d3b-f297-463a-8280-e00fb18dd5be)
+
+Ejemplo de tracert desde h1 al Loopback R1 con falla de R2 a S1 (G0/0 en shutdown).
 
 ---
 
@@ -446,7 +423,7 @@ Se analiza el impacto esperado y observable en la red OSPF si fallan diferentes 
 
 ## 11.1. Explicación Teórica
 
-*   **RIB (Routing Information Base):** Conocida comúnmente como la **Tabla de Enrutamiento**. Es una base de datos mantenida en el plano de control del router (generalmente por el software del sistema operativo de red, como Cisco IOS). Contiene la información de rutas aprendidas de todas las fuentes configuradas:
+*   **RIB (Routing Information Base):** Conocida comúnmente como la **Tabla de Enrutamiento**. Es una base de datos mantenida en el plano de control del router. Contiene la información de rutas aprendidas de todas las fuentes configuradas:
     *   Redes directamente conectadas (`C`, `L`).
     *   Rutas estáticas (`S`).
     *   Rutas aprendidas por protocolos de enrutamiento dinámico (OSPF `O`, EIGRP `D`, BGP `B`, RIP `R`, etc.).
@@ -458,18 +435,23 @@ Se analiza el impacto esperado y observable en la red OSPF si fallan diferentes 
 
 ## 11.2. Verificación en el Práctico
 
-*   **Visualización de la RIB:** Se utilizó el comando `show ip route` en varios routers (ej. R3, que tiene una mezcla de rutas). Se observaron rutas conectadas (`C`), locales (`L`), OSPF intra-área (`O`), OSPF inter-área (`O IA`), y potencialmente OSPF externas (`O E2` si la ruta default estaba activa). Cada entrada muestra el prefijo, la AD/Métrica, el siguiente salto, la antigüedad y la interfaz de salida.
-    <!-- Placeholder para Imagen: Salida `show ip route` en R3 (mostrando mezcla de rutas C, L, O, O IA) -->
-    ![Tabla RIB en R3](path/to/your/r3_show_ip_route.png)
-    *(Reemplaza con tu captura)*
+*   **Visualización de la RIB:** Se utilizó el comando `show ip route` en router 3 que tiene varias conexiones. Se observaron rutas conectadas (`C`), locales (`L`), OSPF intra-área (`O`).
+
+![image](https://github.com/user-attachments/assets/fcf5cfcd-6622-43e6-a222-61b12d69aecb)
+
 
 *   **Visualización de la FIB (CEF):** Se intentó usar `show ip cef` en los mismos routers.
-    *   [**Indica aquí tu experiencia con `show ip cef` en Packet Tracer.** Ejemplo 1: "El comando `show ip cef` está implementado en Packet Tracer y muestra una tabla con los prefijos, los siguientes saltos y las interfaces de salida, reflejando las mejores rutas de la RIB." Ejemplo 2: "El comando `show ip cef` tiene funcionalidad limitada en Packet Tracer y no proporcionó una salida detallada comparable a un dispositivo real, aunque sí listó algunos prefijos." Ejemplo 3: "El comando `show ip cef` no está soportado o no funcionó en la versión de Packet Tracer utilizada."]
-    <!-- Placeholder para Imagen: Salida `show ip cef` en R3 (si PT lo soporta y es útil) -->
-    ![Tabla FIB (CEF) en R3](path/to/your/r3_show_ip_cef.png)
-    *(Reemplaza con tu captura si aplica, o elimina/comenta si no)*
+![image](https://github.com/user-attachments/assets/4fb7d3c9-8d90-4dfa-ac2f-cd7942558a9c)
 
-**Justificación:** La salida de `show ip route` demuestra la existencia de la RIB, conteniendo las rutas seleccionadas por el plano de control con detalles sobre su origen y métrica. La FIB, aunque su visualización directa pueda ser limitada en Packet Tracer, es el componente subyacente que permitiría el reenvío eficiente de paquetes basado en las rutas de la RIB. Conceptualmente, son distintas: la RIB es para decisión, la FIB para acción rápida.
+#### Elementos clave observados:
+
+- **Ruta por defecto** (`0.0.0.0/0`): apunta a `192.168.13.1` por `Serial0/3/0`, usada si no hay coincidencia más específica.
+- **Redes LAN activas**:
+  - `172.16.1.0/24` → vía `192.168.23.1` (Serial0/3/1)
+  - `172.16.4.0/24` y `172.16.5.0/24` → vía `192.168.35.2` (Serial0/2/1)
+- **Redes directamente conectadas** aparecen como `attached`.
+- **IPs propias** del router como `192.168.13.1/32` figuran como `receive`.
+- **Multicast** (`224.0.0.0/4`) y otras direcciones especiales se descartan (`drop`).
 
 ---
 
@@ -479,16 +461,10 @@ Este trabajo práctico proporcionó una experiencia práctica invaluable en la c
 
 Se diseñó e implementó con éxito la topología de red propuesta, incluyendo la resolución de desafíos específicos como la configuración de interfaces en módulos de switch mediante SVIs. La configuración inicial de OSPF en una sola área permitió verificar la formación de adyacencias, la sincronización de LSDBs y el establecimiento de conectividad completa, validada mediante `ping` y `traceroute`.
 
-La transición a una configuración multi-área demostró la capacidad de OSPF para escalar y organizar dominios de enrutamiento más grandes, introduciendo el rol crucial del ABR (R3) y la diferenciación entre rutas intra-área (`O`) e inter-área (`O IA`). Se observó cómo la información de topología se resume y propaga entre áreas mediante Summary LSAs (Type 3).
+La transición a una configuración multi-área demostró la capacidad de OSPF para escalar y organizar dominios de enrutamiento más grandes, introduciendo el rol crucial del ABR (R3) y la diferenciación entre rutas intra-área (`O`) e inter-área (`O IA`). 
 
 La modificación deliberada de los costos OSPF y la posterior verificación con `traceroute` ilustraron de manera efectiva cómo influir en la selección de rutas y la ingeniería de tráfico básica. Asimismo, la configuración de la redistribución de una ruta predeterminada desde un ASBR simulado (R1) demostró cómo OSPF puede integrar información de rutas externas y proveer conectividad hacia fuera del dominio OSPF.
 
 El análisis teórico y la observación (limitada por PT) de la respuesta de OSPF ante fallos de interfaz subrayaron su resiliencia y capacidad de convergencia automática, un pilar de las redes modernas. Finalmente, se clarificó la distinción fundamental entre la RIB (plano de control, decisión) y la FIB (plano de datos, reenvío), componentes esenciales en la arquitectura de un router.
 
 Aunque la simulación tiene limitaciones (especialmente en la medición de performance real y la visibilidad completa de mecanismos como CEF), Packet Tracer fue una herramienta extremadamente útil para consolidar los conocimientos teóricos y desarrollar habilidades prácticas en la configuración y troubleshooting de OSPF. Los objetivos del trabajo práctico se consideran cumplidos.
-
----
-
-# 13. Bibliografía
-
-*   [RFC 2328 - OSPF Version 2](https://datatracker.ietf.org/doc/html/rfc2328)
