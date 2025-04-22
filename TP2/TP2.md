@@ -76,11 +76,9 @@ Se definió y configuró el siguiente plan de direccionamiento IP fijo para todo
 | **Enlace R3 - R1** | `10.0.13.0/30`  | Router3     | Serial0/0/0   | `10.0.13.1`  | `255.255.255.252` |
 |                   |                 | Router1     | Serial0/0/1   | `10.0.13.2`  | `255.255.255.252` |
 
-*(Nota: Asegúrate que las interfaces usadas en la tabla coincidan con las usadas en tu simulación Packet Tracer: Gi0/0, Se0/0/0, etc.)*
-
 ---
 
-# 3. Configuración y Verificación Inicial (Punto 1 del TP)
+# 3. Configuración y Verificación Inicial (Ejercicio 1 del TP)
 
 ## 3.1. Configuración de Dispositivos
 
@@ -162,7 +160,7 @@ Se realizaron las siguientes pruebas:
 
 ---
 
-# 4. Herramienta de Evaluación: iperf3 (Punto 2 del TP)
+# 4. Herramienta de Evaluación: iperf3 (Ejercicio 2 del TP)
 
 ## 4.1. Descripción de iperf3
 
@@ -170,7 +168,7 @@ Se realizaron las siguientes pruebas:
 
 Además del ancho de banda, `iperf3` puede reportar otras métricas importantes como la pérdida de paquetes y el jitter (variación del retardo entre paquetes), especialmente relevante en pruebas UDP. Es una herramienta muy flexible, configurable mediante diversos parámetros en la línea de comandos.
 
-**Nota sobre Packet Tracer:** Cisco Packet Tracer **no incluye** una implementación funcional de `iperf3`. Para cumplir con los objetivos del TP relacionados con la evaluación de performance (Puntos 3, 4 y 5), se utilizarán las herramientas incorporadas en Packet Tracer, específicamente el **Generador de Tráfico (Traffic Generator)** disponible en los PCs simulados y el **Modo Simulación** para visualizar el flujo y posible pérdida de paquetes. Los parámetros de estas herramientas se configurarán para emular, en la medida de lo posible, las funcionalidades clave de `iperf3`.
+**Nota sobre Packet Tracer:** Cisco Packet Tracer **no incluye** una implementación funcional de `iperf3`. Para cumplir con los objetivos del TP relacionados con la evaluación de performance (Ejercicios 3, 4 y 5), se utilizarán las herramientas incorporadas en Packet Tracer, específicamente el **Generador de Tráfico (Traffic Generator)** disponible en los PCs simulados y el **Modo Simulación** para visualizar el flujo y posible pérdida de paquetes. Los parámetros de estas herramientas se configurarán para emular, en la medida de lo posible, las funcionalidades clave de `iperf3`.
 
 ## 4.2. Comandos y Parámetros Principales de iperf3
 
@@ -199,7 +197,7 @@ Estos parámetros permiten simular diferentes tipos de tráfico y evaluar cómo 
 
 ---
 
-# 5. Pruebas de Performance y Captura de Tráfico (Punto 3 del TP)
+# 5. Pruebas de Performance y Captura de Tráfico (Ejercicio 3 del TP)
 
 ## 5.1. Metodología de Pruebas en Packet Tracer
 
@@ -284,7 +282,7 @@ Envio y respuesta de ICMP de PC0 a PC2
   
 ---
 
-# 6. Análisis de Resultados (Punto 4 del TP)
+# 6. Análisis de Resultados (Ejercicio 4 del TP)
 
 En base a las pruebas realizadas en la sección 5, se analizan los siguientes aspectos:
 
@@ -326,7 +324,7 @@ Las pruebas de conectividad inicial con `ping` confirmaron la correcta configura
 *   Verificar las rutas tomadas según las configuraciones de enrutamiento estático.
 *   Observar cualitativamente el comportamiento de los protocolos y detectar posibles puntos de falla o pérdida de paquetes simulados.
 
-Se identificaron las diferencias conceptuales entre TCP y UDP y se observaron algunas de ellas en la simulación. Se analizó cómo los parámetros configurados (tamaño de paquete, tasa de envío simulada) podrían influir en el tráfico, aunque la detección de pérdidas fue [Indica si observaste pérdidas o no, y si PT facilitó su detección].
+Se identificaron las diferencias conceptuales entre TCP y UDP, y se observaron algunos de estos paquetes en la simulación. Se analizó cómo los parámetros configurados, como el tamaño del paquete, la tasa de envío simulada, podrían influir en el tráfico.
 
 La principal limitación encontrada fue la incapacidad de Packet Tracer para ejecutar herramientas de medición de performance estándar como `iperf3`, lo que restringe la obtención de métricas cuantitativas precisas de ancho de banda, jitter y pérdida en escenarios realistas. Sin embargo, como herramienta didáctica para comprender el flujo de datos, el enrutamiento y la configuración de protocolos, Packet Tracer demostró ser valioso.
 
