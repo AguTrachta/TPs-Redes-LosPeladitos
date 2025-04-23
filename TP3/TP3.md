@@ -13,7 +13,7 @@
 
 ---
 
-# 1. Introducción Teórica a OSPF (Punto 1)
+# 1. Introducción Teórica a OSPF
 
 Open Shortest Path First (OSPF) es un protocolo de enrutamiento interior (IGP) de tipo **estado de enlace (link-state)**, estandarizado por la IETF (RFC 2328 para OSPFv2). A diferencia de los protocolos de vector distancia (como RIP), los routers OSPF construyen una **imagen completa de la topología** de la red (o del área OSPF a la que pertenecen) intercambiando **Anuncios de Estado de Enlace (LSAs - Link State Advertisements)**.
 
@@ -47,12 +47,12 @@ Se implementó la topología especificada en el TP3 utilizando Cisco Packet Trac
 ![image](https://github.com/user-attachments/assets/76ba48a8-ea3e-464b-9f59-2b296ce45af0)
 
 **Dispositivos Utilizados (Ejemplo):**
-*   Routers: Cisco 2911
+*   Routers: Cisco 2901
 *   Switch: Cisco 2960
 *   Hosts: PC-PT
 *   Módulos Router: HWIC-2T (Seriales), HWIC-4ESW (Switch Ethernet para R4/R5)
 
-## 2.2. Plan de Direccionamiento IP (Punto 2)
+## 2.2. Plan de Direccionamiento IP (Ejercicio 2)
 
 Se diseñó el siguiente plan de direccionamiento IP, utilizando la subred `172.16.0.0/16` (Clase B) para las LANs y subredes `192.168.x.0/30` (Clase C) para los enlaces WAN seriales, según las interfaces especificadas y corregidas durante la implementación:
 
@@ -81,7 +81,7 @@ Se diseñó el siguiente plan de direccionamiento IP, utilizando la subred `172.
 
 ---
 
-# 3. Configuración Inicial y Verificación (Area 0) (Punto 3)
+# 3. Configuración Inicial y Verificación (Area 0)
 
 Se procedió con la configuración detallada de las interfaces y la activación inicial de OSPF en una única área (Area 0).
 
@@ -136,7 +136,7 @@ Tras permitir la convergencia de OSPF:
 
 ---
 
-# 4. Análisis de Mensajes OSPF (Punto 4)
+# 4. Análisis de Mensajes OSPF
 
 OSPF utiliza varios tipos de paquetes para su funcionamiento, encapsulados directamente sobre IP (protocolo 89):
 
@@ -158,7 +158,7 @@ Se utilizó el modo Simulación de Packet Tracer, filtrando por el protocolo `OS
 
 ---
 
-# 5. Base de Datos de Estado de Enlace (LSDB) (Punto 5b)
+# 5. Base de Datos de Estado de Enlace (LSDB) (Ejercicio 5b)
 
 La LSDB contiene todos los LSAs recibidos que describen la topología del área. Se puede inspeccionar usando `show ip ospf database`.
 
@@ -179,7 +179,7 @@ En la sección **Router Link States (Area 0)** se observaron LSAs tipo 1 origina
 
 ---
 
-# 6. Configuración Multi-Área OSPF (Punto 6)
+# 6. Configuración Multi-Área OSPF
 
 Se procedió a dividir la red OSPF en dos áreas según lo solicitado.
 
@@ -260,7 +260,7 @@ Se modificaron los comandos `network` en los routers para asignar las redes a la
 Ping desde h1 a h4 con las nuevas areas
 ---
 
-# 7. Verificación Detallada del Funcionamiento OSPF (Punto 7)
+# 7. Verificación Detallada del Funcionamiento OSPF
 
 ## 7.1. Información de Vecinos en R2
 
@@ -286,7 +286,7 @@ Se usaron comandos para inspeccionar el funcionamiento de OSPF en las interfaces
 
 ---
 
-# 8. Modificación de Costos OSPF (Punto 8)
+# 8. Modificación de Costos OSPF
 
 OSPF utiliza el costo como métrica principal. Por defecto, se calcula como `Costo = CostoReferencia / AnchoBandaInterfaz`. El CostoReferencia por defecto es 100 Mbps. Esto puede llevar a que FastEthernet (100 Mbps) y GigabitEthernet (1000 Mbps) tengan el mismo costo (1), lo cual no es ideal.
 
@@ -323,7 +323,7 @@ El primer ping es antes de cambiar el costo de R1, el segundo es despues del cam
 
 ---
 
-# 9. Redistribución de Ruta Predeterminada (Punto 9)
+# 9. Redistribución de Ruta Predeterminada
 
 Se simuló una conexión a Internet en R1 y se configuró OSPF para distribuir una ruta predeterminada al resto de la red OSPF, permitiendo que los hosts internos puedan alcanzar destinos fuera del dominio OSPF.
 
@@ -378,7 +378,7 @@ Con esta configuración, cualquier host (ej. h4) que intente contactar una IP no
 
 ---
 
-# 10. Análisis de Falla de Interfaz en R2 (Punto 10)
+# 10. Análisis de Falla de Interfaz en R2
 
 Se analiza el impacto esperado y observable en la red OSPF si fallan diferentes interfaces del router R2. OSPF está diseñado para detectar estos fallos y converger a una nueva topología estable si existen caminos alternativos.
 
@@ -419,7 +419,7 @@ Ejemplo de tracert desde h1 al Loopback R1 con falla de R2 a S1 (G0/0 en shutdow
 
 ---
 
-# 11. RIB vs FIB (Punto 11)
+# 11. RIB vs FIB
 
 ## 11.1. Explicación Teórica
 
