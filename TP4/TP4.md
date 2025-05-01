@@ -107,7 +107,7 @@ El eBGP se utiliza para el **intercambio de rutas entre diferentes sistemas aut�
 
 En cambio, el iBGP se utiliza **dentro de un mismo sistema autónomo** para **distribuir la información de rutas** que recibió por eBGP hacia otros routers internos. A diferencia del eBGP, en iBGP no se modifica el AS_PATH, ya que todos los routers pertenecen al mismo AS. Además, los routers iBGP no necesariamente están conectados directamente, pero deben formar una red lógica de “full mesh” (o usar mecanismos como route reflectors para evitarlo) para asegurar la correcta propagación de rutas.
 
-![Captura de pantalla 2025-05-01 175723](https://github.com/user-attachments/assets/852fe769-003f-49d1-9ff4-cfd6657bd66a)
+![imagen](https://github.com/user-attachments/assets/852fe769-003f-49d1-9ff4-cfd6657bd66a)
 
 En este escenario, AS2 es un AS de tránsito, ya que enruta tráfico que pasa desde AS1 hacia AS3. No solo maneja sus propias rutas, sino que también permite el tráfico entre dos sistemas autónomos externos.
 
@@ -129,6 +129,18 @@ En total, el gráfico muestra 14 sistemas autónomos, aunque se sabe que AS7303 
 
 ### 2.5 - Conexiones eBGP de un AS distinto (Claro AR 5G).
 
+Probando con la red del teléfono (Claro AR 5G), se obtuvo que el AS utilizado es AS11664, cuyo gráfico de conexiones se presenta a continuación:
+
+![imagen](https://github.com/user-attachments/assets/ce8f8c55-75a9-4215-b3cf-b7cf32148383)
+
+Como similitudes podemos detectar que ambas tienen conexiones directas a AS6762, AS3257 y AS6939, pero AS1299 y AS19037 son directas solamente de Claro, y AS3356 que es directa en Telecom, para Claro es secundaria, pasa primero por AS1299 o AS6762.
+
+Otros detalles de Claro son que posee 1.167 prefijos IPv4, con 119 peers y 3 upstreams, y 1.012 prefijos IPv6, con 24 peers y 3 upstreams. En comparación con Telecom, Claro mantiene una diferencia considerable en la cantidad de prefijos anunciados, tanto en IPv4 como en IPv6, lo que sugiere una estrategia de segmentación más amplia o una mayor cobertura regional.
+
 ---
 
-### 2.6
+### 2.6 - Problema en enrutamiento BGP histórico que haya tenido un impacto en servicios de red.
+
+Para este apartado, vamos a utilizar un ejemplo reciente como fue la caída de servicios de Facebook a nivel mundial el 4 de octubre del 2021 (https://en.wikipedia.org/wiki/2021_Facebook_outage).
+
+Lo que sucedió aquel día fue que Facebook, Instagram, WhatsApp y Messenger estuvieron fuera de servicio durante más de 6 horas a nivel mundial. El problema no fue causado por un ataque ni una falla del servidor, sino por un error en la actualización de las rutas BGP. Facebook retiró por error sus propios anuncios BGP desde sus routers backbone, lo que provocó que nadie en internet supiera cómo llegar a sus servidores, es decir, los servidores estaban activos pero no se les podía llegar para interactuar. El impacto fue masivo, con millones de usuarios afectados y pérdidas económicas significativas, sumado a los tiempos de la pandemia, donde estos servicios eran muy requeridos. Este incidente evidenció la importancia de una gestión cuidadosa del enrutamiento BGP y la necesidad de contar con mecanismos de validación y redundancia.
