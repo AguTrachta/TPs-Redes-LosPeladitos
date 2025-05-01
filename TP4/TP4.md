@@ -21,6 +21,8 @@
 
 Un sistema autónomo (AS) es una gran red o un grupo de redes que tiene una política de enrutamiento específica y unificada hacia el exterior. Cada dispositivo que se conecta a internet está primero conectado a un AS. Por ejemplo, una empresa que brinda servicios de internet administra miles de routers distribuídos por toda una región, y todos estos routers pueden contener muchas redes, pero comparten una política común de cómo enrutar los datos hacia internet. En conjunto forman un único AS, que desde el exterior se lo ve como una "caja negra" que contiene una política común de enrutamiento.
 
+![autonomous-system-diagram](https://github.com/user-attachments/assets/def2a0fe-7bfe-4f01-aa0d-9f5b9115ab96)
+
 ---
 
 ### 1.2 - Autonomous System Number (ASN) y su conformación.
@@ -105,4 +107,28 @@ El eBGP se utiliza para el **intercambio de rutas entre diferentes sistemas aut�
 
 En cambio, el iBGP se utiliza **dentro de un mismo sistema autónomo** para **distribuir la información de rutas** que recibió por eBGP hacia otros routers internos. A diferencia del eBGP, en iBGP no se modifica el AS_PATH, ya que todos los routers pertenecen al mismo AS. Además, los routers iBGP no necesariamente están conectados directamente, pero deben formar una red lógica de “full mesh” (o usar mecanismos como route reflectors para evitarlo) para asegurar la correcta propagación de rutas.
 
+![Captura de pantalla 2025-05-01 175723](https://github.com/user-attachments/assets/852fe769-003f-49d1-9ff4-cfd6657bd66a)
+
 En este escenario, AS2 es un AS de tránsito, ya que enruta tráfico que pasa desde AS1 hacia AS3. No solo maneja sus propias rutas, sino que también permite el tráfico entre dos sistemas autónomos externos.
+
+---
+
+### 2.4 - Conexiones eBGP del AS actual.
+
+Usando como referencia el AS7303 de Telecom Argentina, se accedió al gráfico que muestra las conexiones de este AS con otros:
+
+![imagen](https://github.com/user-attachments/assets/ebceb546-e874-4711-ad58-75e30fea1718)
+
+Del mismo se puede observar que AS7303 mantiene conexiones eBGP directas con al menos tres sistemas autónomos principales: AS3356 (Lumen/Level 3), AS3257 (GTT) y AS6762 (Telecom Italia Sparkle). Estas conexiones están representadas con flechas más gruesas, lo cual sugiere un mayor volumen de rutas BGP intercambiadas o una relación de tránsito más activa.
+
+Además, se identifican otros AS conectados a uno o dos saltos, como AS1299, AS7018, AS6939, entre otros, los cuales forman parte de la infraestructura global de Internet. La mayoría de ellos están interconectados a través de AS3356, que actúa como un AS de tránsito central en esta topología.
+
+En total, el gráfico muestra 14 sistemas autónomos, aunque se sabe que AS7303 tiene más de 200 peers activos en IPv4 y más de 40 en IPv6. Esto se debe a que el grafo es una representación simplificada, pensada para resaltar las conexiones más relevantes y legibles visualmente.
+
+---
+
+### 2.5 - Conexiones eBGP de un AS distinto (Claro AR 5G).
+
+---
+
+### 2.6
