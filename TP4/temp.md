@@ -38,7 +38,7 @@ El fragmento más claro que evidencia que BGP está funcionando correctamente es
 
 ---
 
-## 2. Comprobación de Conectividad Inter-AS (Punto 2)
+## 2. Comprobación de Conectividad Inter-AS 
 
 Una vez configurado BGP y verificado que las rutas se intercambiaron e instalaron correctamente, se procedió a comprobar la conectividad extremo a extremo entre los hosts ubicados en diferentes Sistemas Autónomos.
 
@@ -62,7 +62,7 @@ Ping de h3 a h1
 
 ---
 
-## 3. Simulación de Tráfico y Falla de Router (Punto 3)
+## 3. Simulación de Tráfico y Falla de Router
 
 Se simuló tráfico continuo y se observó el impacto de una falla en uno de los routers de borde.
 
@@ -101,7 +101,7 @@ Se simuló tráfico continuo y se observó el impacto de una falla en uno de los
 
 ---
 
-## 4. Configuración y Conexión IPv6 (Punto 4)
+## 4. Configuración y Conexión IPv6 
 
 Se intentó añadir configuración IPv6 a la red para lograr conectividad dual-stack entre AS100 y AS200. Si bien la configuración básica de direcciones IPv6 en interfaces y hosts es posible, **se encontró una limitación importante en Cisco Packet Tracer respecto a la configuración de BGP para intercambiar rutas IPv6.**
 
@@ -143,7 +143,7 @@ En un entorno real o con un simulador más completo, BGP utilizaría **MP-BGP (M
 
 ---
 
-## 5. Documentación del Diseño de Red (Punto 5)
+## 5. Documentación del Diseño de Red 
 
 A continuación, se presenta la tabla documentando el diseño de la red implementada, incluyendo las configuraciones IPv4 e IPv6.
 
@@ -159,5 +159,107 @@ A continuación, se presenta la tabla documentando el diseño de la red implemen
 | h3     | FastEthernet0            | 192.168.2.0      | 192.168.2.3       | 255.255.255.0   | 2001:DB8:0:2::3/64       | Host en AS200, Gateway R1 (IPv4/IPv6)       |
 | SW0    | Vlan1  | N/A              | N/A               | N/A             | N/A                      | Switch L2 en AS100                            |
 | SW1    | Vlan1  | N/A              | N/A               | N/A             | N/A                      | Switch L2 en AS200                            |
+
+---
+
+## 6. Extensión del Sistema Autónomo AS100 
+
+Se procedió a expandir la topología dentro del Sistema Autónomo 100 (AS100) para simular una red interna más compleja, añadiendo los siguientes componentes:
+*   Un nuevo router interno (`R0_interno`).
+*   Un nuevo switch (`SW_interno`) conectado a `R0_interno`.
+*   Un nuevo host (`h4`) conectado a `SW_interno`.
+*   Un enlace punto a punto entre el router de borde existente (`R0`) y el nuevo router interno (`R0_interno`).
+
+Se asignó el direccionamiento IP correspondiente a los nuevos enlaces y la nueva LAN:
+*   Enlace R0-R0_interno: `192.168.100.0/30`
+*   LAN h4 (conectada a R0_interno): `192.168.101.0/24`
+
+![image](https://github.com/user-attachments/assets/56ec3335-2770-4014-b539-66b79e3c35b2)
+
+---
+
+## 7. Configuración de Enrutamiento Interno en AS100 (OSPF)
+
+Para permitir la comunicación dentro del AS100 expandido (específicamente, para que R0 conozca la nueva LAN de h4 y R0_interno conozca las otras redes internas y cómo salir del AS), se configuró un protocolo de enrutamiento interior (IGP). Se eligió **OSPF (Proceso ID 10)**.
+
+*   OSPF se habilitó en las interfaces relevantes de **R0** y **R0_interno**.
+*   Las redes anunciadas en OSPF Area 0 fueron:
+    *   En R0: `192.168.1.0/24` (LAN original h0/h1) y `192.168.100.0/30` (Enlace a R0_interno).
+    *   En R0_interno: `192.168.100.0/30` (Enlace a R0) y `192.168.101.0/24` (LAN h4).
+
+Se verificó la correcta formación de la **vecindad OSPF** entre R0 y R0_interno usando `show ip ospf neighbor`.
+
+![image](https://github.com/user-attachments/assets/61c06ce2-1db1-4244-8eb3-c8386a182eb9)
+
+
+Se verificó el **aprendizaje de rutas OSPF** en las tablas de enrutamiento:
+*   En R0 (`show ip route ospf`), se observó la ruta `O` hacia `192.168.101.0/24`.
+*   En R0_interno (`show ip route ospf`), se observó la ruta `O` hacia `192.168.1.0/24`.
+
+![image](https://github.com/user-attachments/assets/298b04af-8fa1-4bb8-b7cf-f84100b2abb0)
+
+Finalmente, se comprobó la conectividad interna dentro de AS100 mediante `ping` entre `h4` y `h0`, el cual fue exitoso.
+
+![image](https://github.com/user-attachments/assets/97dfb5b1-23e9-4576-aec3-19c7cd32382a)
+
+---
+
+## 8. Redistribución de OSPF en BGP 
+
+El objetivo de este paso fue hacer que la red interna de AS100, específicamente la nueva LAN de h4 (`192.168.101.0/24`) aprendida por R0 a través de OSPF, fuera visible para el AS vecino (AS200). Esto requiere que el router de borde (R0) **redistribuya** las rutas OSPF dentro de su proceso BGP.
+
+**Configuración de Redistribución:**
+*   En el router de borde `R0`, dentro de la configuración `router bgp 100`, se añadió el comando `redistribute ospf 10`. Este comando instruye a BGP para que tome las rutas aprendidas por OSPF proceso 10 y las anuncie a sus vecinos BGP.
+
+**Análisis de Configuración y Tablas:**
+
+1.  **Configuración BGP:** Se verificó la configuración de R0 (`show running-config | section router bgp`) para confirmar la presencia del comando `redistribute ospf 10`. La configuración de R1 no requirió cambios.
+
+![image](https://github.com/user-attachments/assets/f3e02f33-6d79-437d-9dd7-c5912e545358)
+
+
+2.  **Tabla BGP de R0 (`show ip bgp`):** Se observó que, además de la red `192.168.1.0` (anunciada con `network`), R0 ahora también incluía la red `192.168.101.0` en su tabla BGP, marcada con un origen `?` (Incomplete), indicando que fue redistribuida.
+
+![image](https://github.com/user-attachments/assets/fd043368-9d65-41c9-9d31-ee34b5accb59)
+
+
+3.  **Tabla BGP de R1 (`show ip bgp`):** ¡Crucial! Se verificó que R1 (en AS200) **ahora aprendía la ruta hacia `192.168.101.0/24`** de su vecino R0 (10.0.0.1). La ruta mostraba un AS_PATH de `100` y origen `?`.
+
+![image](https://github.com/user-attachments/assets/e83f73cb-0d33-4f62-baf7-5d09cb4ede83)
+
+
+4.  **Tabla de Ruteo de R1 (`show ip route bgp`):** Se confirmó que R1 instaló la ruta hacia `192.168.101.0/24` en su RIB, marcada con `B`, indicando que era la mejor ruta aprendida por BGP para ese destino.
+
+![image](https://github.com/user-attachments/assets/8d293c5d-2039-4059-af92-508eeda3d19e)
+
+
+5.  **Ruta de Retorno (R0_interno):** Se aseguró que R0_interno tuviera una forma de devolver el tráfico hacia AS200. Se configuró una **ruta estática predeterminada** en R0_interno apuntando a R0 (`ip route 0.0.0.0 0.0.0.0 192.168.100.1`). Esto es necesario porque R0_interno no participa en BGP y necesita una ruta genérica para alcanzar redes externas (como la de AS200).
+
+![image](https://github.com/user-attachments/assets/773ba4ff-1560-46bc-8219-47d0707aa7f4)
+
+**Explicación:** La redistribución permite "traducir" rutas aprendidas por un protocolo (OSPF en este caso) para que puedan ser anunciadas por otro protocolo (BGP). R0 actúa como el traductor, tomando la información de ruta interna de OSPF y compartiéndola con el mundo exterior a través de BGP. Sin redistribución, AS200 nunca se enteraría de la existencia de la red `192.168.101.0/24`. La ruta de retorno en `R0_interno` es esencial para completar la comunicación bidireccional.
+
+---
+
+## 9. Comprobación de Conectividad con h4 
+
+El paso final fue verificar que los hosts en AS200 pudieran comunicarse con el nuevo host `h4` en AS100, y viceversa, ahora que las rutas fueron correctamente redistribuidas y propagadas.
+
+*   **Prueba AS200 -> h4:** Se ejecutó un `ping` desde `h2` (en AS200, IP `192.168.2.2`) hacia `h4` (en AS100, IP `192.168.101.10`). El ping fue **exitoso**.
+
+![image](https://github.com/user-attachments/assets/d3b600df-e0d4-43cd-97d9-e29a8401052b)
+
+*   **Verificación de Ruta (`traceroute`):**
+    *   Desde `h2`: `tracert 192.168.101.10`. La traza mostró el camino esperado: `h2 -> SW1 -> R1 -> R0 -> R0_interno -> SW_interno -> h4` (mostrando las IPs de las interfaces de los routers).
+    *   Desde `h4`: `tracert 192.168.2.2`. La traza mostró el camino inverso: `h4 -> SW_interno -> R0_interno -> R0 -> R1 -> SW1 -> h2`.
+
+![image](https://github.com/user-attachments/assets/c05f8e7a-1978-42fb-9799-7510211930a7)
+
+Tracert desde h2 a h4
+
+![image](https://github.com/user-attachments/assets/d24393d3-d224-4370-bf59-a9c8a60ab416)
+
+Tracert desde h4 a h2
+
 
 ---
