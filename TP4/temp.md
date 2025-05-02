@@ -29,14 +29,12 @@ El fragmento más claro que evidencia que BGP está funcionando correctamente es
 **Explicación de las Tablas de Ruteo:**
 
 *   **Tabla BGP (`show ip bgp`):** Esta es la base de datos interna de BGP. Contiene *toda* la información de alcanzabilidad que ha aprendido de sus vecinos BGP. Para cada prefijo, almacena múltiples caminos si los aprende de diferentes vecinos, junto con todos los atributos BGP asociados (AS_PATH, ORIGIN, NEXT_HOP, LOCAL_PREF, MED, etc.). BGP utiliza estos atributos y un complejo algoritmo de selección de la mejor ruta para decidir cuál es el camino preferido hacia cada destino dentro de esta tabla.
-    <!-- Placeholder para Imagen: Captura de `show ip bgp` en R0 mostrando la ruta hacia la red de AS200 -->
-    ![Tabla BGP en R0](path/to/your/r0_show_ip_bgp.png)
-    *(Reemplaza con tu captura)*
+  
+![image](https://github.com/user-attachments/assets/410761f7-c0f8-43a6-adcc-ae39e887cffd)
 
 *   **Tabla de Enrutamiento Principal / RIB (`show ip route` o `show ip route bgp`):** Esta es la tabla que el router utiliza para tomar decisiones de reenvío de paquetes. Contiene *solo la mejor ruta* para cada destino, seleccionada entre *todas* las fuentes de enrutamiento (BGP, OSPF, EIGRP, Estáticas, Conectadas) basada en la Distancia Administrativa (AD) y la métrica. Las rutas BGP que ganan el proceso de selección en la tabla BGP se instalan aquí, usualmente marcadas con la letra `B`. El comando `show ip route bgp` filtra la RIB para mostrar únicamente las rutas que fueron aprendidas originalmente por BGP y seleccionadas como las mejores.
-    <!-- Placeholder para Imagen: Captura de `show ip route bgp` en R0 mostrando la ruta 'B' hacia la red de AS200 -->
-    ![Ruta BGP en RIB de R0](path/to/your/r0_show_ip_route_bgp.png)
-    *(Reemplaza con tu captura)*
+
+![image](https://github.com/user-attachments/assets/b127a8bb-b8e7-474e-82ed-e8835b6e016f)
 
 ---
 
@@ -53,13 +51,14 @@ En ambos casos, las pruebas de `ping` fueron **exitosas**, demostrando que:
 2.  R1 aprendió correctamente la ruta hacia la red `192.168.1.0/24` vía BGP desde R0.
 3.  Ambos routers instalaron estas rutas BGP en sus tablas de enrutamiento principales y pudieron reenviar los paquetes ICMP entre los hosts de los diferentes AS.
 
-<!-- Placeholder para Imagen: Captura de PING exitoso desde h0 hacia h2 -->
-![Ping h0 a h2](path/to/your/ping_h0_h2.png)
-*(Reemplaza con tu captura)*
+![image](https://github.com/user-attachments/assets/a8d80563-e014-46ea-9e90-16e7b03947ca)
 
-<!-- Placeholder para Imagen: Captura de PING exitoso desde h3 hacia h1 -->
-![Ping h3 a h1](path/to/your/ping_h3_h1.png)
-*(Reemplaza con tu captura)*
+Ping de h0 a h2
+
+![image](https://github.com/user-attachments/assets/e5a81b43-1e57-43e8-bc9f-3a388975b3fd)
+
+Ping de h3 a h1
+
 
 ---
 
@@ -68,7 +67,7 @@ En ambos casos, las pruebas de `ping` fueron **exitosas**, demostrando que:
 Se simuló tráfico continuo y se observó el impacto de una falla en uno de los routers de borde.
 
 **Simulación de Tráfico:**
-*   Se inició un `ping` extendido desde h0 hacia h2 (ej. `ping -t 192.168.2.2` en la Command Prompt de h0) para generar un flujo constante de paquetes ICMP entre los AS.
+*   Se inició un `ping` extendido desde h0 hacia h2 (`ping -t 192.168.2.2` en la Command Prompt de h0) para generar un flujo constante de paquetes ICMP entre los AS.
 *   Se cambió al modo **Simulación** en Packet Tracer.
 *   Se configuraron los filtros de eventos para mostrar `ICMP` y `BGP`.
 
@@ -77,17 +76,17 @@ Se simuló tráfico continuo y se observó el impacto de una falla en uno de los
 
 **Análisis del Tráfico Visualizado:**
 *   **Antes de la falla:** En modo simulación, se observaba el flujo normal de paquetes ICMP (Request y Reply) viajando entre h0 -> SW0 -> R0 -> R1 -> SW1 -> h2 y viceversa. También se veían paquetes BGP `KEEPALIVE` intercambiándose periódicamente entre R0 y R1 para mantener la sesión activa.
-    <!-- Placeholder para Imagen: Captura Simulación: Tráfico ICMP y BGP KEEPALIVE normal -->
-    ![Tráfico Normal Inter-AS](path/to/your/tp4_sim_normal.png)
-    *(Reemplaza con tu captura)*
+
+![image](https://github.com/user-attachments/assets/0b14ccc7-c0f8-480e-8b4b-d2a3c580a8f3)
+
 *   **Durante la falla (R1 apagado):**
     *   Inmediatamente, los paquetes ICMP enviados desde h0 hacia h2 comenzaron a fallar al llegar a R0, ya que R0 perdió la conexión directa con el siguiente salto (10.0.0.2). Packet Tracer mostraría los paquetes ICMP siendo descartados por R0 (sobre rojo con 'X').
     *   R0 detectó la caída del enlace físico hacia R1.
     *   R0 intentó mantener la sesión BGP, pero al no recibir `KEEPALIVE` de R1 dentro del `Hold Time` (usualmente 180 segundos por defecto), la sesión BGP cayó. R0 envió un mensaje BGP `NOTIFICATION` para cerrar la sesión (aunque R1 estaba apagado y no podía recibirlo).
     *   R0 eliminó la ruta BGP hacia `192.168.2.0/24` de su tabla de enrutamiento.
-    <!-- Placeholder para Imagen: Captura Simulación: Falla de ICMP y posible BGP NOTIFICATION -->
-    ![Tráfico Durante Falla R1](path/to/your/tp4_sim_fail.png)
-    *(Reemplaza con tu captura)*
+
+ ![image](https://github.com/user-attachments/assets/eeb17f35-1f7c-407d-966a-c41eeae23b87)
+
 *   **Tras Encender R1:**
     *   Al volver a encender R1, las interfaces se activaron.
     *   R0 y R1 restablecieron la conectividad IP en el enlace `10.0.0.0/24`.
@@ -95,133 +94,58 @@ Se simuló tráfico continuo y se observó el impacto de una falla en uno de los
     *   Una vez que la sesión BGP se restableció (`Established`), R0 y R1 intercambiaron las rutas (`192.168.1.0/24` y `192.168.2.0/24`) nuevamente.
     *   Las rutas BGP fueron reinstaladas en las tablas de enrutamiento.
     *   El `ping` extendido desde h0 hacia h2 volvió a ser exitoso después de la convergencia de BGP.
-    <!-- Placeholder para Imagen: Captura Simulación: Restablecimiento BGP (OPEN/KEEPALIVE) y ICMP exitoso -->
-    ![Tráfico Tras Recuperación R1](path/to/your/tp4_sim_recover.png)
-    *(Reemplaza con tu captura)*
 
 **Conclusión:** La simulación demostró que BGP depende de la conectividad IP subyacente y utiliza mensajes Keepalive para detectar fallos en la sesión. Una falla en un router de borde interrumpe la conectividad inter-AS hasta que el router se recupera y la sesión BGP se restablece.
 
 ---
 
+---
+
 ## 4. Configuración y Conexión IPv6 (Punto 4)
 
-Se procedió a añadir configuración IPv6 a la red existente para permitir la comunicación entre los AS utilizando ambos protocolos (Dual-Stack).
+Se intentó añadir configuración IPv6 a la red para lograr conectividad dual-stack entre AS100 y AS200. Si bien la configuración básica de direcciones IPv6 en interfaces y hosts es posible, **se encontró una limitación importante en Cisco Packet Tracer respecto a la configuración de BGP para intercambiar rutas IPv6.**
 
-**Diseño Direccionamiento IPv6 (Ejemplo):**
-*   **Enlace R0-R1:** `2001:DB8:0:A::/64` (R0: `::1/64`, R1: `::2/64`)
-*   **LAN AS100 (R0):** `2001:DB8:0:1::/64` (R0: `::1/64`, h0: `::2/64`, h1: `::3/64`)
-*   **LAN AS200 (R1):** `2001:DB8:0:2::/64` (R1: `::1/64`, h2: `::2/64`, h3: `::3/64`)
-*   *(Usamos prefijos `/64` por simplicidad, común en LANs y a veces en enlaces PtP)*
+**Limitación de BGP IPv6 en Packet Tracer:**
+Al intentar configurar la vecindad BGP utilizando las direcciones IPv6 de los routers vecinos (comando `neighbor <ipv6-address> remote-as <asn>` dentro del proceso `router bgp <asn>`), Packet Tracer genera un error (`% Invalid input detected`). Esto indica que la implementación de BGP en la versión utilizada de Packet Tracer no soporta completamente la configuración de sesiones BGP sobre IPv6 de esta manera directa, o requiere un método diferente (como usar address-families que también puede ser limitado en PT).
 
-**Configuración IPv6 en Interfaces:**
+**Por lo tanto, no fue posible establecer el intercambio dinámico de rutas IPv6 entre R0 y R1 usando BGP en esta simulación.**
 
-1.  **Habilitar Ruteo IPv6 Global (Necesario en ambos routers):**
+**Configuración de Conectividad IPv6 Básica:**
+
+A pesar de la limitación de BGP, se procedió a configurar las direcciones IPv6 en las interfaces de los routers y hosts para establecer la conectividad básica dentro de cada AS y en el enlace entre R0 y R1.
+
+1.  **Habilitar Ruteo IPv6 Global:** Es fundamental ejecutar `ipv6 unicast-routing` en modo de configuración global en **ambos routers (R0 y R1)** para que puedan enrutar paquetes IPv6.
     ```bash
     configure terminal
     ipv6 unicast-routing
     exit
     ```
-2.  **Configurar IPs IPv6 en Interfaces:**
+2.  **Asignar Direcciones IPv6 a Interfaces de Routers:** Se asignaron direcciones globales únicas (GUA) y se habilitó IPv6 en las interfaces relevantes. (Se usó el plan del intento anterior como ejemplo).
     *   **R0:**
-        ```bash
-        configure terminal
-        interface GigabitEthernet0/0/0 ! Hacia LAN AS100
-         ipv6 address 2001:DB8:0:1::1/64
-         ipv6 enable
-        exit
-        interface GigabitEthernet0/0/1 ! Hacia R1
-         ipv6 address 2001:DB8:0:A::1/64
-         ipv6 enable
-        exit
-        end
-        copy run start
-        ```
+        *   `interface GigabitEthernet0/0/0` (LAN): `ipv6 address 2001:DB8:0:1::1/64`, `ipv6 enable`
+        *   `interface GigabitEthernet0/0/1` (WAN): `ipv6 address 2001:DB8:0:A::1/64`, `ipv6 enable`
     *   **R1:**
-        ```bash
-        configure terminal
-        interface GigabitEthernet0/0/0 ! Hacia LAN AS200
-         ipv6 address 2001:DB8:0:2::1/64
-         ipv6 enable
-        exit
-        interface GigabitEthernet0/0/1 ! Hacia R0
-         ipv6 address 2001:DB8:0:A::2/64
-         ipv6 enable
-        exit
-        end
-        copy run start
-        ```
-3.  **Configurar IPs IPv6 en Hosts (Estática o Autoconfig):**
-    *   Se puede usar configuración estática en los hosts o habilitar SLAAC si los routers están configurados para ello (no cubierto aquí por simplicidad). Configuración estática:
-    *   **h0:** IPv6 Address: `2001:DB8:0:1::2/64`, IPv6 Gateway: `fe80::[LinkLocal_R0_Gi0/0/0]` (Opcional: O la global `2001:DB8:0:1::1`)
-    *   **h1:** IPv6 Address: `2001:DB8:0:1::3/64`, IPv6 Gateway: `fe80::[LinkLocal_R0_Gi0/0/0]`
-    *   **h2:** IPv6 Address: `2001:DB8:0:2::2/64`, IPv6 Gateway: `fe80::[LinkLocal_R1_Gi0/0/0]`
-    *   **h3:** IPv6 Address: `2001:DB8:0:2::3/64`, IPv6 Gateway: `fe80::[LinkLocal_R1_Gi0/0/0]`
-    *   *(Nota: Packet Tracer puede requerir usar la dirección Link-Local del gateway (obtenida con `show ipv6 interface brief` en el router) para la configuración del gateway IPv6 en los hosts).*
+        *   `interface GigabitEthernet0/0/0` (LAN): `ipv6 address 2001:DB8:0:2::1/64`, `ipv6 enable`
+        *   `interface GigabitEthernet0/0/1` (WAN): `ipv6 address 2001:DB8:0:A::2/64`, `ipv6 enable`
+    *   Se verificó la asignación y la generación de direcciones Link-Local con `show ipv6 interface brief`.
+    *   
+![image](https://github.com/user-attachments/assets/1c09d528-a5ea-4163-a00c-1b9c1309fa78)
 
-**Configuración BGP para IPv6:**
+**Comprobación de Conectividad IPv6 (Limitada a enlaces directos y misma LAN):**
 
-*   BGP necesita ser activado explícitamente para la familia de direcciones IPv6.
+*   Desde R0: `ping 2001:DB8:0:A::2` (Ping a R1 en el enlace directo) 
+*   Desde h0: `ping 2001:DB8:0:1::1` (Ping a su gateway R0)
+*   Desde h0: `ping 2001:DB8:0:1::3` (Ping a h1 en la misma LAN)
+*   Desde h0: `ping 2001:DB8:0:2::2` (Ping a h2 en AS200) -> **NO FUNCIONA**
 
-1.  **En R0:**
-    ```bash
-    configure terminal
-    router bgp 100
-     ! Definir el vecino IPv6
-     neighbor 2001:DB8:0:A::2 remote-as 200
-     ! Activar el vecino para la familia de direcciones IPv6
-     address-family ipv6 unicast
-      neighbor 2001:DB8:0:A::2 activate
-      ! Anunciar la red LAN IPv6 de AS100
-      network 2001:DB8:0:1::/64
-     exit-address-family
-    end
-    copy run start
-    ```
-2.  **En R1:**
-    ```bash
-    configure terminal
-    router bgp 200
-     ! Definir el vecino IPv6
-     neighbor 2001:DB8:0:A::1 remote-as 100
-     ! Activar el vecino para la familia de direcciones IPv6
-     address-family ipv6 unicast
-      neighbor 2001:DB8:0:A::1 activate
-      ! Anunciar la red LAN IPv6 de AS200
-      network 2001:DB8:0:2::/64
-     exit-address-family
-    end
-    copy run start
-    ```
-
-**Comprobación de Conexión IPv6:**
-
-1.  **Verificar Vecindad BGP IPv6:**
-    *   `show bgp ipv6 unicast summary` en R0 y R1. Buscar que el vecino IPv6 esté establecido (muestre prefijos recibidos).
-    <!-- Placeholder para Imagen: Salida `show bgp ipv6 unicast summary` en R0 -->
-    ![BGP IPv6 Summary R0](path/to/your/r0_bgp_ipv6_summary.png)
-    *(Reemplaza con tu captura)*
-2.  **Verificar Tabla BGP IPv6:**
-    *   `show bgp ipv6 unicast` en R0 (buscar prefijo `2001:DB8:0:2::/64`) y R1 (buscar `2001:DB8:0:1::/64`).
-3.  **Verificar Tabla de Ruteo IPv6:**
-    *   `show ipv6 route bgp` en R0 y R1 para ver las rutas BGP instaladas.
-    <!-- Placeholder para Imagen: Salida `show ipv6 route bgp` en R1 -->
-    ![Rutas BGP IPv6 en R1](path/to/your/r1_show_ipv6_route_bgp.png)
-    *(Reemplaza con tu captura)*
-4.  **Comprobar Conectividad Host-Host IPv6:**
-    *   Desde h0: `ping 2001:DB8:0:2::2` (hacia h2).
-    *   Desde h2: `ping 2001:DB8:0:1::3` (hacia h1).
-    *   Ambos pings deberían ser exitosos.
-    <!-- Placeholder para Imagen: Ping IPv6 exitoso desde h0 hacia h2 -->
-    ![Ping IPv6 h0 a h2](path/to/your/ping_ipv6_h0_h2.png)
-    *(Reemplaza con tu captura)*
-
-**Conclusión:** BGP puede configurarse para intercambiar información de alcanzabilidad tanto para IPv4 como para IPv6 simultáneamente (usando address-families), permitiendo la conectividad dual-stack entre Sistemas Autónomos.
+**Conclusión Conceptual (Cómo Debería Funcionar BGP):**
+En un entorno real o con un simulador más completo, BGP utilizaría **MP-BGP (Multi-Protocol BGP)** y **Address Families** para manejar IPv6. La configuración dentro de `router bgp <asn>` incluiría una sección `address-family ipv6 unicast` donde se activarían los vecinos IPv6 (`neighbor <ipv6> activate`) y se anunciarían las redes IPv6 (`network <ipv6-prefix>`). Esto permitiría el intercambio dinámico de rutas IPv6, eliminando la necesidad de rutas estáticas. Debido a las limitaciones de Packet Tracer, recurrimos a rutas estáticas para lograr la conectividad IPv6 inter-AS requerida para las pruebas.
 
 ---
 
 ## 5. Documentación del Diseño de Red (Punto 5)
 
-A continuación, se presenta la tabla documentando el diseño de la red implementada, incluyendo las configuraciones IPv4 e IPv6 (según el ejemplo del punto 4).
+A continuación, se presenta la tabla documentando el diseño de la red implementada, incluyendo las configuraciones IPv4 e IPv6.
 
 | Equipo | Interfaz                 | IP de red (IPv4) | IPv4 Address      | Máscara         | IPv6 Address             | Comments                                      |
 | :----- | :----------------------- | :--------------- | :---------------- | :-------------- | :----------------------- | :-------------------------------------------- |
@@ -233,10 +157,7 @@ A continuación, se presenta la tabla documentando el diseño de la red implemen
 | h1     | FastEthernet0            | 192.168.1.0      | 192.168.1.3       | 255.255.255.0   | 2001:DB8:0:1::3/64       | Host en AS100, Gateway R0 (IPv4/IPv6)       |
 | h2     | FastEthernet0            | 192.168.2.0      | 192.168.2.2       | 255.255.255.0   | 2001:DB8:0:2::2/64       | Host en AS200, Gateway R1 (IPv4/IPv6)       |
 | h3     | FastEthernet0            | 192.168.2.0      | 192.168.2.3       | 255.255.255.0   | 2001:DB8:0:2::3/64       | Host en AS200, Gateway R1 (IPv4/IPv6)       |
-| SW0    | Vlan1 (Mgmt - Opcional)  | N/A              | N/A               | N/A             | N/A                      | Switch L2 en AS100                            |
-| SW1    | Vlan1 (Mgmt - Opcional)  | N/A              | N/A               | N/A             | N/A                      | Switch L2 en AS200                            |
-| ....   |                          |                  |                   |                 |                          | (Agregar más filas si se añaden equipos después) |
-
-*(Nota: Las IPs de gateway IPv6 para los hosts podrían necesitar ser las Link-Local de los routers en Packet Tracer).*
+| SW0    | Vlan1  | N/A              | N/A               | N/A             | N/A                      | Switch L2 en AS100                            |
+| SW1    | Vlan1  | N/A              | N/A               | N/A             | N/A                      | Switch L2 en AS200                            |
 
 ---
