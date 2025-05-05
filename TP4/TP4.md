@@ -371,7 +371,7 @@ El objetivo de este paso fue hacer que la red interna de AS100, específicamente
 ![image](https://github.com/user-attachments/assets/fd043368-9d65-41c9-9d31-ee34b5accb59)
 
 
-3.  **Tabla BGP de R1 (`show ip bgp`):** ¡Crucial! Se verificó que R1 (en AS200) **ahora aprendía la ruta hacia `192.168.101.0/24`** de su vecino R0 (10.0.0.1). La ruta mostraba un AS_PATH de `100` y origen `?`.
+3.  **Tabla BGP de R1 (`show ip bgp`):** Se verificó que R1 (en AS200) **ahora aprendía la ruta hacia `192.168.101.0/24`** de su vecino R0 (10.0.0.1). La ruta mostraba un AS_PATH de `100` y origen `?`.
 
 ![image](https://github.com/user-attachments/assets/e83f73cb-0d33-4f62-baf7-5d09cb4ede83)
 
