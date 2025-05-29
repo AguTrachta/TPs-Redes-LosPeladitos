@@ -807,10 +807,10 @@ Se ha elegido **Fernet** de la librería **`cryptography`** (usa AES-128-CBC + H
 ### 4.c Payload encriptado en la red
 
 **1. Detalle de encabezados (Frame 259)**  
-![](images/wireshark5.png)
+![](images/wireshark4.png)
 
 **2. Hex dump de la carga útil (120 bytes)**  
-![](images/wireshark6.png)
+![](images/wireshark5.png)
 
 #### Sin cifrar (UDP puro)
 ```text
